@@ -1,0 +1,63 @@
+:root {
+  --primary: oklch(65% 0.15 264);
+
+  --bg-dark: oklch(92% 0 264);
+  --bg: oklch(96% 0 264);
+  --bg-light: oklch(100% 0 264);
+
+  --text: oklch(15% 0 264);
+  --text-muted: oklch(40% 0 264);
+
+  --shadow-s:
+  inset 0 1px 1px #00000008,
+  0 1px 2px #00000012,
+  0 2px 4px #00000008;
+
+  --shadow-m:
+    inset 0 1px 1px #00000010,
+    0 2px 4px #00000016,
+    0 4px 8px #00000010;
+
+  --shadow-l:
+    inset 0 1px 1px #00000012,
+    0 4px 6px #00000018,
+    0 6px 12px #00000012;
+
+  --side-bar-bg: #ffffff;
+  --menu-selected-bg: rgb(242,243,245);
+
+  --logo-fill: #000000;
+  --letter-m-fill: #ffffff;
+}
+
+:root.dark {
+  --primary: oklch(90% 0.17 100);
+
+  --bg-dark: oklch(10% 0 264);
+  --bg: oklch(20% 0 264);
+  --bg-light: oklch(30% 0 264);
+
+  --text: oklch(96% 0 264);
+  --text-muted: oklch(76% 0 264);
+
+  --shadow-s:
+  inset 0 1px 2px #ffffff30,
+  0 1px 2px #00000030,
+  0 2px 4px #00000015;
+
+  --shadow-m:
+  inset 0 1px 2px #ffffff50,
+  0 2px 4px #00000030,
+  0 4px 8px #00000015;
+
+  --shadow-l:
+  inset 0 1px 2px #ffffff70,
+  0 4px 6px #00000030,
+  0 6px 10px #00000015;
+
+  --side-bar-bg: #232324;
+  --menu-selected-bg: rgba(255, 255, 255, 0.08);
+  
+  --logo-fill: #ffffff;
+  --letter-m-fill: #000000;
+}

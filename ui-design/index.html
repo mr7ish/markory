@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markory - 书签管理器 UI 设计</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-bookmark"></i>
+                <span>Markory</span>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-book"></i>
+                    <span>所有书签</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-folder"></i>
+                    <span>文件夹</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-clock"></i>
+                    <span>最近添加</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-star"></i>
+                    <span>收藏夹</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-trash"></i>
+                    <span>回收站</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="add-bookmark-btn">
+                    <i class="fas fa-plus"></i>
+                    添加书签
+                </button>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 顶部工具栏 -->
+            <header class="toolbar">
+                <div class="search-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="搜索书签..." />
+                    </div>
+                    <div class="filter-options">
+                        <select>
+                            <option>所有文件夹</option>
+                            <option>工作</option>
+                            <option>学习</option>
+                            <option>娱乐</option>
+                            <option>购物</option>
+                        </select>
+                        <select>
+                            <option>最近访问</option>
+                            <option>最多访问</option>
+                            <option>字母顺序</option>
+                            <option>添加时间</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="toolbar-actions">
+                    <button class="icon-btn" title="网格视图">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button class="icon-btn active" title="列表视图">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button class="icon-btn" title="导入">
+                        <i class="fas fa-file-import"></i>
+                    </button>
+                    <button class="icon-btn" title="导出">
+                        <i class="fas fa-file-export"></i>
+                    </button>
+                    <button class="icon-btn" title="设置">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- 书签统计卡片 -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-bookmark"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>1,234</h3>
+                        <p>总书签数</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-folder"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>45</h3>
+                        <p>文件夹数</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>128</h3>
+                        <p>标签数</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>23</h3>
+                        <p>今日新增</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 书签列表 -->
+            <div class="bookmarks-container">
+                <div class="folder-section">
+                    <div class="folder-header">
+                        <i class="fas fa-folder-open"></i>
+                        <span>工作</span>
+                        <span class="bookmark-count">42</span>
+                        <button class="expand-btn">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+
+                    <div class="bookmarks-list">
+                        <div class="bookmark-item">
+                            <div class="bookmark-favicon">
+                                <img src="https://www.google.com/s2/favicons?domain=github.com" alt="favicon">
+                            </div>
+                            <div class="bookmark-info">
+                                <h4 class="bookmark-title">GitHub</h4>
+                                <p class="bookmark-url">github.com</p>
+                                <div class="bookmark-tags">
+                                    <span class="tag">开发</span>
+                                    <span class="tag">代码</span>
+                                </div>
+                            </div>
+                            <div class="bookmark-actions">
+                                <button class="action-btn" title="编辑">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn" title="删除">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="action-btn" title="更多">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bookmark-item">
+                            <div class="bookmark-favicon">
+                                <img src="https://www.google.com/s2/favicons?domain=figma.com" alt="favicon">
+                            </div>
+                            <div class="bookmark-info">
+                                <h4 class="bookmark-title">Figma</h4>
+                                <p class="bookmark-url">figma.com</p>
+                                <div class="bookmark-tags">
+                                    <span class="tag">设计</span>
+                                    <span class="tag">协作</span>
+                                </div>
+                            </div>
+                            <div class="bookmark-actions">
+                                <button class="action-btn" title="编辑">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn" title="删除">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="action-btn" title="更多">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bookmark-item">
+                            <div class="bookmark-favicon">
+                                <img src="https://www.google.com/s2/favicons?domain=notion.so" alt="favicon">
+                            </div>
+                            <div class="bookmark-info">
+                                <h4 class="bookmark-title">Notion</h4>
+                                <p class="bookmark-url">notion.so</p>
+                                <div class="bookmark-tags">
+                                    <span class="tag">笔记</span>
+                                    <span class="tag">管理</span>
+                                </div>
+                            </div>
+                            <div class="bookmark-actions">
+                                <button class="action-btn" title="编辑">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn" title="删除">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="action-btn" title="更多">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="folder-section">
+                    <div class="folder-header">
+                        <i class="fas fa-folder"></i>
+                        <span>学习</span>
+                        <span class="bookmark-count">28</span>
+                        <button class="expand-btn">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="folder-section">
+                    <div class="folder-header">
+                        <i class="fas fa-folder"></i>
+                        <span>娱乐</span>
+                        <span class="bookmark-count">35</span>
+                        <button class="expand-btn">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 添加书签弹窗 -->
+    <div class="modal" id="addBookmarkModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>添加新书签</h2>
+                <button class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>名称</label>
+                    <input type="text" placeholder="输入书签名称">
+                </div>
+                <div class="form-group">
+                    <label>URL</label>
+                    <input type="url" placeholder="https://example.com">
+                </div>
+                <div class="form-group">
+                    <label>文件夹</label>
+                    <select>
+                        <option>工作</option>
+                        <option>学习</option>
+                        <option>娱乐</option>
+                        <option>购物</option>
+                        <option>+ 新建文件夹</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>标签</label>
+                    <input type="text" placeholder="输入标签，用逗号分隔">
+                </div>
+                <div class="form-group">
+                    <label>描述（可选）</label>
+                    <textarea placeholder="添加描述..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary">取消</button>
+                <button class="btn btn-primary">保存书签</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

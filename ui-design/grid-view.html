@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markory - 网格视图设计</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="grid-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-bookmark"></i>
+                <span>Markory</span>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-book"></i>
+                    <span>所有书签</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-folder"></i>
+                    <span>文件夹</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-clock"></i>
+                    <span>最近添加</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-star"></i>
+                    <span>收藏夹</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-trash"></i>
+                    <span>回收站</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="add-bookmark-btn">
+                    <i class="fas fa-plus"></i>
+                    添加书签
+                </button>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 顶部工具栏 -->
+            <header class="toolbar">
+                <div class="search-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="搜索书签..." />
+                    </div>
+                    <div class="filter-options">
+                        <select>
+                            <option>所有文件夹</option>
+                            <option>工作</option>
+                            <option>学习</option>
+                            <option>娱乐</option>
+                            <option>购物</option>
+                        </select>
+                        <select>
+                            <option>最近访问</option>
+                            <option>最多访问</option>
+                            <option>字母顺序</option>
+                            <option>添加时间</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="toolbar-actions">
+                    <button class="icon-btn active" title="网格视图">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button class="icon-btn" title="列表视图">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button class="icon-btn" title="导入">
+                        <i class="fas fa-file-import"></i>
+                    </button>
+                    <button class="icon-btn" title="导出">
+                        <i class="fas fa-file-export"></i>
+                    </button>
+                    <button class="icon-btn" title="设置">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- 书签网格视图 -->
+            <div class="bookmarks-grid-view">
+                <!-- 文件夹卡片 -->
+                <div class="folder-card">
+                    <div class="folder-icon">
+                        <i class="fas fa-folder"></i>
+                    </div>
+                    <h3>工作</h3>
+                    <span class="folder-count">42 个书签</span>
+                    <div class="folder-preview">
+                        <img src="https://www.google.com/s2/favicons?domain=github.com" alt="favicon">
+                        <img src="https://www.google.com/s2/favicons?domain=figma.com" alt="favicon">
+                        <img src="https://www.google.com/s2/favicons?domain=notion.so" alt="favicon">
+                        <span class="more-count">+39</span>
+                    </div>
+                </div>
+
+                <div class="folder-card">
+                    <div class="folder-icon">
+                        <i class="fas fa-folder" style="color: #28a745;"></i>
+                    </div>
+                    <h3>学习</h3>
+                    <span class="folder-count">28 个书签</span>
+                    <div class="folder-preview">
+                        <img src="https://www.google.com/s2/favicons?domain=coursera.org" alt="favicon">
+                        <img src="https://www.google.com/s2/favicons?domain=udemy.com" alt="favicon">
+                        <img src="https://www.google.com/s2/favicons?domain=medium.com" alt="favicon">
+                        <span class="more-count">+25</span>
+                    </div>
+                </div>
+
+                <div class="folder-card">
+                    <div class="folder-icon">
+                        <i class="fas fa-folder" style="color: #6f42c1;"></i>
+                    </div>
+                    <h3>娱乐</h3>
+                    <span class="folder-count">35 个书签</span>
+                    <div class="folder-preview">
+                        <img src="https://www.google.com/s2/favicons?domain=youtube.com" alt="favicon">
+                        <img src="https://www.google.com/s2/favicons?domain=netflix.com" alt="favicon">
+                        <img src="https://www.google.com/s2/favicons?domain=spotify.com" alt="favicon">
+                        <span class="more-count">+32</span>
+                    </div>
+                </div>
+
+                <div class="folder-card">
+                    <div class="folder-icon">
+                        <i class="fas fa-folder" style="color: #fd7e14;"></i>
+                    </div>
+                    <h3>购物</h3>
+                    <span class="folder-count">18 个书签</span>
+                    <div class="folder-preview">
+                        <img src="https://www.google.com/s2/favicons?domain=amazon.com" alt="favicon">
+                        <img src="https://www.google.com/s2/favicons?domain=taobao.com" alt="favicon">
+                        <img src="https://www.google.com/s2/favicons?domain=jd.com" alt="favicon">
+                        <span class="more-count">+15</span>
+                    </div>
+                </div>
+
+                <!-- 书签卡片 -->
+                <div class="bookmark-card">
+                    <div class="bookmark-card-header">
+                        <img src="https://www.google.com/s2/favicons?domain=github.com" alt="favicon" class="bookmark-card-favicon">
+                        <div class="bookmark-card-actions">
+                            <button class="card-action-btn" title="收藏">
+                                <i class="far fa-star"></i>
+                            </button>
+                            <button class="card-action-btn" title="更多">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bookmark-card-body">
+                        <h4 class="bookmark-card-title">GitHub</h4>
+                        <p class="bookmark-card-url">github.com</p>
+                        <div class="bookmark-card-tags">
+                            <span class="tag">开发</span>
+                            <span class="tag">代码</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bookmark-card">
+                    <div class="bookmark-card-header">
+                        <img src="https://www.google.com/s2/favicons?domain=figma.com" alt="favicon" class="bookmark-card-favicon">
+                        <div class="bookmark-card-actions">
+                            <button class="card-action-btn" title="收藏">
+                                <i class="far fa-star"></i>
+                            </button>
+                            <button class="card-action-btn" title="更多">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bookmark-card-body">
+                        <h4 class="bookmark-card-title">Figma</h4>
+                        <p class="bookmark-card-url">figma.com</p>
+                        <div class="bookmark-card-tags">
+                            <span class="tag">设计</span>
+                            <span class="tag">协作</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bookmark-card">
+                    <div class="bookmark-card-header">
+                        <img src="https://www.google.com/s2/favicons?domain=notion.so" alt="favicon" class="bookmark-card-favicon">
+                        <div class="bookmark-card-actions">
+                            <button class="card-action-btn starred" title="取消收藏">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            <button class="card-action-btn" title="更多">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bookmark-card-body">
+                        <h4 class="bookmark-card-title">Notion</h4>
+                        <p class="bookmark-card-url">notion.so</p>
+                        <div class="bookmark-card-tags">
+                            <span class="tag">笔记</span>
+                            <span class="tag">管理</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bookmark-card">
+                    <div class="bookmark-card-header">
+                        <img src="https://www.google.com/s2/favicons?domain=stackoverflow.com" alt="favicon" class="bookmark-card-favicon">
+                        <div class="bookmark-card-actions">
+                            <button class="card-action-btn" title="收藏">
+                                <i class="far fa-star"></i>
+                            </button>
+                            <button class="card-action-btn" title="更多">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bookmark-card-body">
+                        <h4 class="bookmark-card-title">Stack Overflow</h4>
+                        <p class="bookmark-card-url">stackoverflow.com</p>
+                        <div class="bookmark-card-tags">
+                            <span class="tag">问答</span>
+                            <span class="tag">编程</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bookmark-card">
+                    <div class="bookmark-card-header">
+                        <img src="https://www.google.com/s2/favicons?domain=medium.com" alt="favicon" class="bookmark-card-favicon">
+                        <div class="bookmark-card-actions">
+                            <button class="card-action-btn" title="收藏">
+                                <i class="far fa-star"></i>
+                            </button>
+                            <button class="card-action-btn" title="更多">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bookmark-card-body">
+                        <h4 class="bookmark-card-title">Medium</h4>
+                        <p class="bookmark-card-url">medium.com</p>
+                        <div class="bookmark-card-tags">
+                            <span class="tag">博客</span>
+                            <span class="tag">文章</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bookmark-card">
+                    <div class="bookmark-card-header">
+                        <img src="https://www.google.com/s2/favicons?domain=behance.net" alt="favicon" class="bookmark-card-favicon">
+                        <div class="bookmark-card-actions">
+                            <button class="card-action-btn starred" title="取消收藏">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            <button class="card-action-btn" title="更多">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bookmark-card-body">
+                        <h4 class="bookmark-card-title">Behance</h4>
+                        <p class="bookmark-card-url">behance.net</p>
+                        <div class="bookmark-card-tags">
+                            <span class="tag">作品集</span>
+                            <span class="tag">创意</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bookmark-card">
+                    <div class="bookmark-card-header">
+                        <img src="https://www.google.com/s2/favicons?domain=dribbble.com" alt="favicon" class="bookmark-card-favicon">
+                        <div class="bookmark-card-actions">
+                            <button class="card-action-btn" title="收藏">
+                                <i class="far fa-star"></i>
+                            </button>
+                            <button class="card-action-btn" title="更多">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bookmark-card-body">
+                        <h4 class="bookmark-card-title">Dribbble</h4>
+                        <p class="bookmark-card-url">dribbble.com</p>
+                        <div class="bookmark-card-tags">
+                            <span class="tag">设计</span>
+                            <span class="tag">灵感</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bookmark-card">
+                    <div class="bookmark-card-header">
+                        <img src="https://www.google.com/s2/favicons?domain=producthunt.com" alt="favicon" class="bookmark-card-favicon">
+                        <div class="bookmark-card-actions">
+                            <button class="card-action-btn" title="收藏">
+                                <i class="far fa-star"></i>
+                            </button>
+                            <button class="card-action-btn" title="更多">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bookmark-card-body">
+                        <h4 class="bookmark-card-title">Product Hunt</h4>
+                        <p class="bookmark-card-url">producthunt.com</p>
+                        <div class="bookmark-card-tags">
+                            <span class="tag">产品</span>
+                            <span class="tag">发现</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bookmark-card">
+                    <div class="bookmark-card-header">
+                        <img src="https://www.google.com/s2/favicons?domain=dev.to" alt="favicon" class="bookmark-card-favicon">
+                        <div class="bookmark-card-actions">
+                            <button class="card-action-btn" title="收藏">
+                                <i class="far fa-star"></i>
+                            </button>
+                            <button class="card-action-btn" title="更多">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bookmark-card-body">
+                        <h4 class="bookmark-card-title">DEV Community</h4>
+                        <p class="bookmark-card-url">dev.to</p>
+                        <div class="bookmark-card-tags">
+                            <span class="tag">开发者</span>
+                            <span class="tag">社区</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 文件夹展开/收起
+        document.querySelectorAll('.folder-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('.bookmark-card-actions')) {
+                    // 这里可以添加展开文件夹的逻辑
+                    console.log('Expand folder:', this.querySelector('h3').textContent);
+                }
+            });
+        });
+
+        // 收藏切换
+        document.querySelectorAll('.card-action-btn').forEach(btn => {
+            if (btn.title === '收藏' || btn.title === '取消收藏') {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('starred');
+                    if (this.classList.contains('starred')) {
+                        this.innerHTML = '<i class="fas fa-star"></i>';
+                        this.title = '取消收藏';
+                    } else {
+                        this.innerHTML = '<i class="far fa-star"></i>';
+                        this.title = '收藏';
+                    }
+                });
+            }
+        });
+
+        // 书签卡片点击
+        document.querySelectorAll('.bookmark-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('.bookmark-card-actions')) {
+                    const url = this.querySelector('.bookmark-card-url').textContent;
+                    console.log('Open URL:', url);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
