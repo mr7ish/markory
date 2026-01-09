@@ -6,4 +6,7 @@ export default defineConfig({
   manifest: {
     permissions: ["bookmarks", "tabs", "history", "storage"],
   },
+  alias: {
+    "@/bookmarks": "./entrypoints/bookmarks",
+  },
 });

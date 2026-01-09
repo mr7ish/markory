@@ -1,25 +1,7 @@
-import { defineQuery, useQuery } from "@pinia/colada";
-
-export const useBookmarkFolders = defineQuery(() => {
-  const { data } = useQuery({
-    key: ["bookmark-folders"],
-    query: () => fetchBookmarkFolders(),
-  });
-
-  watchEffect(() => {
-    console.log("useBookmarkFolders =>", data.value);
-  });
-
-  return {
-    folders: computed(() => data.value?.folders || []),
-    ungroupedFolders: computed(() => data.value?.ungroupedFolders || []),
-  };
-});
-
 /**
  * 获取书签栏和其他书签下的所有一级文件夹和书签
  */
-async function fetchAllNodes() {
+export async function fetchAllNodes() {
   const res = await Promise.allSettled([
     browser.bookmarks.getChildren("1"),
     browser.bookmarks.getChildren("2"),
@@ -33,18 +15,9 @@ async function fetchAllNodes() {
 }
 
 /**
- * 获取书签栏和其他书签下的所有一级未分组书签
- */
-async function fetchUngroupedBookmarks() {
-  const nodes = await fetchAllNodes();
-
-  return nodes.filter((node) => node.url);
-}
-
-/**
  * 获取书签栏和其他书签下的所有一级文件夹
  */
-async function fetchBookmarkFolders() {
+export async function fetchBookmarkFolders() {
   const nodes = await fetchAllNodes();
 
   const folders = nodes.filter((node) => !node.url);
@@ -63,4 +36,22 @@ async function fetchBookmarkFolders() {
     folders,
     ungroupedFolders: nodes.length > folders.length ? [ungroupedFolder] : [],
   };
+}
+
+/**
+ * 获取书签栏和其他书签下的所有一级未分组书签
+ */
+export async function fetchUngroupedBookmarks() {
+  const nodes = await fetchAllNodes();
+
+  return nodes.filter((node) => node.url);
+}
+
+/**
+ * 获取特定文件夹的子项
+ */
+export async function fetchFolderChildren(id: string) {
+  // 获取特定文件夹的子项
+  const children = await browser.bookmarks.getChildren(id);
+  return children;
 }

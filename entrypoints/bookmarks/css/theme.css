@@ -28,10 +28,13 @@
 
   --logo-fill: #000000;
   --letter-m-fill: #ffffff;
+
+  --folder-hover-fill: rgb(252, 252, 252);
 }
 
 :root.dark {
   --primary: oklch(90% 0.17 100);
+
 
   --bg-dark: oklch(10% 0 264);
   --bg: oklch(20% 0 264);
@@ -60,4 +63,7 @@
   
   --logo-fill: #ffffff;
   --letter-m-fill: #000000;
+
+  --folder-hover-fill: #1f1f22;
+
 }

@@ -6,9 +6,10 @@ import "css-reset-and-normalize/css/link-reset.min.css";
 import "animate.css";
 import "./css/style.css";
 import "./css/theme.css";
+import "./css/utils.css";
 
 import App from "./App.vue";
-import router from "@/entrypoints/popup/router";
+import router from "@/entrypoints/bookmarks/router";
 import { PiniaColada } from "@pinia/colada";
 import pinia from "./store";
 

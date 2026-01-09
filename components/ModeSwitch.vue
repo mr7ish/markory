@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { useDarkMode } from "@/entrypoints/popup/hooks/useDarkMode";
+import { useDarkMode } from "@/entrypoints/bookmarks/hooks/useDarkMode";
 import IconTag from "./IconTag.vue";
 import { useMouseInElement } from "@vueuse/core";
 
