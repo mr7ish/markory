@@ -1,9 +1,21 @@
 import { defineQuery, useQuery } from "@pinia/colada";
 import {
+  fetchAllNodes,
   fetchBookmarkFolders,
   fetchFolderChildren,
 } from "@/entrypoints/bookmarks/api/bookmarks";
 import { useRoute } from "vue-router";
+
+export function useBookmarkTopNodes() {
+  const { data } = useQuery({
+    key: ["bookmark-top-nodes"],
+    query: () => fetchAllNodes(),
+  });
+
+  return {
+    topNodes: computed(() => data.value || []),
+  };
+}
 
 export const useBookmarkFolders = defineQuery(() => {
   const { data } = useQuery({

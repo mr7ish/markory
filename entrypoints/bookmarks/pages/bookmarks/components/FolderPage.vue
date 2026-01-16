@@ -1,14 +1,17 @@
 <template>
-  <div class="folder-page-wrapper">
+  <div
+    class="node-page-wrapper"
+    @contextmenu="openContextMenu"
+  >
     <div
-      v-if="allNodes.length > 0"
-      class="folders-wrapper"
+      v-if="topNodes.length > 0"
+      class="nodes-wrapper"
     >
       <div
-        v-for="node in allNodes"
+        v-for="node in topNodes"
         :key="node.id"
-        class="folder-item-wrapper"
-        @click="jumpFolder(node)"
+        class="node-item-wrapper"
+        @click="clickNode(node)"
       >
         <IconTag
           v-if="!node.url"
@@ -42,72 +45,86 @@
       </div>
     </div>
     <EmptyWrapper v-else />
-  </div>
 
-  <!-- <div class="wrapper">
-    <div>
-      <div v-for="i in list">
-        <img
-          :src="i.favicon"
-          alt=""
-        />
-      </div>
-    </div>
-  </div> -->
+    <ContextMenu
+      v-model:visible="visible"
+      :x="x"
+      :y="y"
+      :menus="menus"
+      @select="contextMenuSelect"
+    />
+
+    <TinyModal
+      v-model="modalVisible"
+      width="320px"
+      :closeOnMask="false"
+      destroyOnClose
+    >
+      <template #header>
+        {{ modalTitle }}
+      </template>
+      <NewFolder
+        @cancel="modalVisible = false"
+        @confirm="getValues"
+      />
+    </TinyModal>
+  </div>
 </template>
 
 <script setup lang="ts">
 import IconTag from "@/components/IconTag.vue";
 import { DateFormat, formatTimestamp, generateFavicon } from "@/utils";
 import {
-  useBookmarkFolders,
+  useBookmarkTopNodes,
   useFolderChildrenQuery,
 } from "@/entrypoints/bookmarks/queries/bookmarks";
 import EmptyWrapper from "@/components/EmptyWrapper.vue";
 import { useRoute, useRouter } from "vue-router";
+import ContextMenu from "@/components/context-menu/index.vue";
+import { useContextMenu } from "@/components/context-menu/hooks/useContextMenu";
+import TinyModal from "@/components/TinyModal.vue";
+import { ContextMenuItem } from "@/components/context-menu";
+import NewFolder, { FormValues } from "./NewFolder.vue";
 
 interface BookmarkTreeNodeFav extends Browser.bookmarks.BookmarkTreeNode {
   favicon: string;
 }
 
+const modalVisible = ref(false);
+const modalTitle = ref("");
+
+const { x, y, visible, menus, openContextMenu } = useContextMenu();
+
+function contextMenuSelect(item: ContextMenuItem) {
+  console.log("contextMenuSelect =>", item);
+
+  modalVisible.value = true;
+  modalTitle.value = item.label;
+}
+
+menus.value = [
+  { label: "新建文件夹", value: "new-folder" },
+  { label: "新建书签", value: "new-bookmark" },
+];
+
+function getValues(values: FormValues) {
+  console.log("getValues", values);
+}
+
 const list = shallowRef<BookmarkTreeNodeFav[]>([]);
 
-const { folders, ungroupedFolders } = useBookmarkFolders();
-
-const allFolders = computed(() => {
-  return [
-    ...ungroupedFolders.value,
-    ...folders.value,
-    // ...folders.value,
-    // ...folders.value,
-    // ...folders.value,
-    // ...folders.value,
-    // ...folders.value,
-    // ...folders.value,
-    // ...folders.value,
-    // ...folders.value,
-    // ...folders.value,
-  ];
-});
+const { topNodes } = useBookmarkTopNodes();
 
 const { childrenNodes } = useFolderChildrenQuery();
-
-const allNodes = computed(() => {
-  if (route.params.id !== "root") {
-    return childrenNodes.value;
-  } else {
-    return allFolders.value;
-  }
-});
 
 const route = useRoute();
 const router = useRouter();
 
 watchEffect(() => {
-  console.log("allNodes =>", allNodes.value);
+  console.log("topNodes =>", topNodes.value);
 });
 
-function jumpFolder(node: Browser.bookmarks.BookmarkTreeNode) {
+function clickNode(node: Browser.bookmarks.BookmarkTreeNode) {
   console.log("clickFolder", node);
 
   if (node.url) {
@@ -137,6 +154,8 @@ function jumpFolder(node: Browser.bookmarks.BookmarkTreeNode) {
 async function loadBookmarks() {
   // const get = await browser.bookmarks.get(["5", "6"]);
   // console.log("get", get);
+
+  // browser.bookmarks.move
 
   return;
 
@@ -170,17 +189,20 @@ loadBookmarks();
 </script>
 
 <style scoped lang="less">
-.folder-page-wrapper {
+.node-page-wrapper {
   height: 100%;
   overflow-y: auto;
 
-  .folders-wrapper {
+  .nodes-wrapper {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); // 每行3列
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(150px, 1fr)
+    ); // 根据宽度自动适应列数
     gap: 50px;
     row-gap: 30px;
 
-    .folder-item-wrapper {
+    .node-item-wrapper {
       padding: 10px;
       display: flex;
       flex-direction: column;

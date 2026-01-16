@@ -3,7 +3,10 @@
     <LayoutSideBar />
     <div class="layout-main">
       <LayoutHeader />
-      <main class="layout-content">
+      <main
+        class="layout-content"
+        @contextmenu.prevent="() => {}"
+      >
         <router-view />
       </main>
     </div>

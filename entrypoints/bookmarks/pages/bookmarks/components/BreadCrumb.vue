@@ -1,9 +1,10 @@
 <template>
   <div class="bread-crumb-wrapper">
     <div
-      class="crumb-item"
       v-for="(route, i) in routes"
       :key="route.id"
+      class="crumb-item"
+      :class="routes.length === 1 ? 'cursor-default' : ''"
       :title="route.title"
       @click="jumpFolder(route)"
     >
@@ -55,6 +56,10 @@ watch(
 );
 
 function jumpFolder(route: { id: string; title: string }) {
+  if (routes.value.length === 0) {
+    return;
+  }
+
   router.push({
     name: "bookmarks-folder",
     params: {
@@ -78,6 +83,10 @@ function jumpFolder(route: { id: string; title: string }) {
     display: flex;
     align-items: center;
     cursor: pointer;
+
+    &.cursor-default {
+      cursor: default;
+    }
 
     .title {
       padding: 4px;

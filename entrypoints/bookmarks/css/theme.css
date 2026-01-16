@@ -30,10 +30,14 @@
   --letter-m-fill: #ffffff;
 
   --folder-hover-fill: rgb(252, 252, 252);
+
+  --context-menu-item-hover-bg: #F5F5F6;
+  --context-menu-divider: #E0E0E0;
 }
 
 :root.dark {
-  --primary: oklch(90% 0.17 100);
+  /* --primary: oklch(90% 0.17 100); */
+  --primary: oklch(65% 0.15 264);
 
 
   --bg-dark: oklch(10% 0 264);
@@ -66,4 +70,6 @@
 
   --folder-hover-fill: #1f1f22;
 
+  --context-menu-item-hover-bg: #3b3b40;
+  --context-menu-divider: #3F3F3F;
 }
