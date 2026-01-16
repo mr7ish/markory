@@ -23,7 +23,9 @@
           class="icon-wrapper"
         >
           <img
-            :src="generateFavicon(node.url)"
+            :src="
+              isSystemIcon(node.url) ? systemIcon : generateFavicon(node.url)
+            "
             class="icon"
           />
         </div>
@@ -85,10 +87,21 @@ import { useContextMenu } from "@/components/context-menu/hooks/useContextMenu";
 import TinyModal from "@/components/TinyModal.vue";
 import { ContextMenuItem } from "@/components/context-menu";
 import NewFolder, { FormValues } from "./NewFolder.vue";
+import { useDarkMode } from "@/bookmarks/hooks/useDarkMode";
+import blackLogo from "@/assets/logo-black.svg";
+import whiteLogo from "@/assets/logo-white.svg";
 
 interface BookmarkTreeNodeFav extends Browser.bookmarks.BookmarkTreeNode {
   favicon: string;
 }
+
+const { isDarkMode } = useDarkMode();
+
+function isSystemIcon(url: string) {
+  return ["chrome://bookmarks/"].includes(url);
+}
+
+const systemIcon = computed(() => (isDarkMode.value ? whiteLogo : blackLogo));
 
 const modalVisible = ref(false);
 const modalTitle = ref("");
