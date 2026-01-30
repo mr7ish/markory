@@ -6,7 +6,7 @@
       class="crumb-item"
       :class="routes.length === 1 ? 'cursor-default' : ''"
       :title="route.title"
-      @click="jumpFolder(route)"
+      @click="jumpTo(route)"
     >
       <div class="title text-overflow-hidden">{{ route.title }}</div>
       <IconTag
@@ -25,47 +25,66 @@ import { useRoute, useRouter } from "vue-router";
 const route = useRoute();
 const router = useRouter();
 
-const basic = [
-  {
-    title: "全部文件夹",
-    id: "root",
-  },
-];
+const mapping = {
+  folder: [
+    {
+      title: "全部文件夹",
+      id: "folder",
+    },
+  ],
+  focus: [
+    {
+      title: "特别关注",
+      id: "focus",
+    },
+  ],
+  recycle: [
+    {
+      title: "回收站",
+      id: "recycle",
+    },
+  ],
+};
 
-const routes = ref([...basic]);
+const routes = shallowRef<{ title: string; id: string }[]>([]);
 
 watch(
-  () => route.params.id,
+  () => route.query.id,
   () => {
-    if (route.params.id === "root") {
-      routes.value = [...basic];
-    } else {
-      const index = routes.value.findIndex((i) => i.id === route.params.id);
-
-      if (index !== -1) {
-        routes.value.splice(index + 1);
-        return;
-      }
-
-      routes.value.push({
-        title: route.query.title as string,
-        id: route.params.id as string,
-      });
+    if (isNaN(Number(route.query.id))) {
+      routes.value = mapping[route.query.id as keyof typeof mapping] || [];
+      return;
     }
-  }
+
+    const index = routes.value.findIndex((i) => i.id === route.query.id);
+
+    if (index !== -1) {
+      routes.value = routes.value.splice(index + 1);
+      return;
+    }
+
+    routes.value = [
+      ...routes.value,
+      {
+        id: route.query.id as string,
+        title: route.query.title as string,
+      },
+    ];
+  },
+  {
+    immediate: true,
+  },
 );
 
-function jumpFolder(route: { id: string; title: string }) {
+function jumpTo(route: { id: string; title: string }) {
   if (routes.value.length === 0) {
     return;
   }
 
   router.push({
-    name: "bookmarks-folder",
-    params: {
-      id: route.id,
-    },
+    name: "bookmarks",
     query: {
+      id: route.id,
       title: route.title,
     },
   });

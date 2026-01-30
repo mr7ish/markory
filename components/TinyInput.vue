@@ -111,10 +111,13 @@ defineExpose({
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  border: 1px solid #dcdcdc;
+  // border: 1px solid #dcdcdc;
   border-radius: 6px;
-  background: #fff;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: var(--bg-light);
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 
   &:focus-within {
     border-color: #409eff;
@@ -137,6 +140,7 @@ defineExpose({
   font-size: 14px;
   background: transparent;
   width: 100%;
+  color: var(--text);
 
   &:disabled {
     cursor: not-allowed;

@@ -1,12 +1,12 @@
 <template>
-  <div class="layout-wrapper">
+  <div
+    class="layout-wrapper"
+    @contextmenu.prevent
+  >
     <LayoutSideBar />
     <div class="layout-main">
       <LayoutHeader />
-      <main
-        class="layout-content"
-        @contextmenu.prevent="() => {}"
-      >
+      <main class="layout-content">
         <router-view />
       </main>
     </div>
@@ -31,7 +31,6 @@ import LayoutHeader from "./LayoutHeader.vue";
 
     .layout-content {
       flex: 1;
-      padding: 20px;
       overflow-y: auto;
     }
   }

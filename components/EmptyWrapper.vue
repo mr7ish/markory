@@ -4,7 +4,7 @@
       class="img-empty"
       src="@/assets/images/empty.svg"
     />
-    <div>there is nothing here...</div>
+    <div>nothing here...</div>
   </div>
 </template>
 
@@ -21,7 +21,8 @@
   // transform: translateY(-50px);
 
   .img-empty {
-    width: 30%;
+    width: 25%;
+    user-select: none;
   }
 }
 </style>

@@ -1,0 +1,146 @@
+<template>
+  <div class="menu-island">
+    <div
+      v-for="(menu, index) in menus"
+      :key="menu.value"
+      class="menu-item"
+      @click="clickMenu(menu, index)"
+    >
+      <IconTag
+        :icon="activeMenu === menu.value ? menu.activeIcon : menu.icon"
+        width="20"
+        class="animate__animated"
+        :class="{
+          animate__bounceIn: activeMenu === menu.value,
+        }"
+      />
+      <div class="menu-tooltip">
+        {{ menu.title }}
+      </div>
+    </div>
+    <div
+      class="cursor"
+      :style="{
+        '--offset': `${offset * (36 + 10)}px`,
+      }"
+    ></div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import IconTag from "@/components/IconTag.vue";
+import { useRouter } from "vue-router";
+
+const activeMenu = defineModel("activeMenu", {
+  default: "folder",
+});
+
+const router = useRouter();
+
+const menus = [
+  {
+    title: "全部文件夹",
+    value: "folder",
+    icon: "basil:folder-open-outline",
+    activeIcon: "basil:folder-open-solid",
+  },
+  {
+    title: "特别关注",
+    value: "focus",
+    icon: "si:heart-line",
+    activeIcon: "si:heart-fill",
+  },
+  {
+    title: "回收站",
+    value: "recycle",
+    icon: "basil:trash-outline",
+    activeIcon: "basil:trash-solid",
+    // icon: "flowbite:trash-bin-outline",
+    // activeIcon: "flowbite:trash-bin-solid",
+  },
+];
+
+const offset = ref(menus.findIndex((menu) => menu.value === activeMenu.value));
+
+function clickMenu(menu: (typeof menus)[0], index: number) {
+  activeMenu.value = menu.value;
+  offset.value = index;
+
+  router.push({
+    name: "bookmarks",
+    query: {
+      id: menu.value,
+      title: menu.title,
+    },
+  });
+}
+</script>
+
+<style scoped lang="less">
+.menu-island {
+  padding: 8px;
+  border-radius: 28px;
+  display: flex;
+  gap: 10px;
+
+  position: absolute;
+  left: 50%;
+  bottom: 60px;
+  transform: translateX(-50%);
+
+  background-color: var(--bg-light);
+  box-shadow: var(--shadow-s);
+
+  .menu-item {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 12px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .menu-tooltip {
+    position: absolute;
+    left: 50%;
+    bottom: 48px;
+    transform: translateX(-50%) translateY(4px) scale(0.96);
+    transform-origin: bottom center;
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: var(--bg-dark);
+    box-shadow: var(--shadow-m);
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.16s ease,
+      transform 0.16s ease;
+    z-index: 10;
+  }
+
+  .menu-item:hover .menu-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  .cursor {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--menu-selected-bg);
+
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateX(var(--offset)) translateY(-50%);
+    transition: transform 0.25s ease;
+    pointer-events: none;
+  }
+}
+</style>

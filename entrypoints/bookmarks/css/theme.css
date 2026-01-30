@@ -8,37 +8,30 @@
   --text: oklch(15% 0 264);
   --text-muted: oklch(40% 0 264);
 
-  --shadow-s:
-  inset 0 1px 1px #00000008,
-  0 1px 2px #00000012,
-  0 2px 4px #00000008;
+  --shadow-s: inset 0 1px 1px #00000008, 0 1px 2px #00000012, 0 2px 4px #00000008;
 
-  --shadow-m:
-    inset 0 1px 1px #00000010,
-    0 2px 4px #00000016,
-    0 4px 8px #00000010;
+  --shadow-m: inset 0 1px 1px #00000010, 0 2px 4px #00000016, 0 4px 8px #00000010;
 
-  --shadow-l:
-    inset 0 1px 1px #00000012,
-    0 4px 6px #00000018,
-    0 6px 12px #00000012;
+  --shadow-l: inset 0 1px 1px #00000012, 0 4px 6px #00000018, 0 6px 12px #00000012;
 
   --side-bar-bg: #ffffff;
-  --menu-selected-bg: rgb(242,243,245);
+  --menu-selected-bg: rgb(242, 243, 245);
 
   --logo-fill: #000000;
   --letter-m-fill: #ffffff;
 
   --folder-hover-fill: rgb(252, 252, 252);
 
-  --context-menu-item-hover-bg: #F5F5F6;
-  --context-menu-divider: #E0E0E0;
+  --context-menu-item-hover-bg: #f5f5f6;
+  --context-menu-item-danger-hover-bg: #fdd9d8;
+  --context-menu-divider: #e0e0e0;
+
+  --message-bg-color: #ffffff;
 }
 
 :root.dark {
   /* --primary: oklch(90% 0.17 100); */
   --primary: oklch(65% 0.15 264);
-
 
   --bg-dark: oklch(10% 0 264);
   --bg: oklch(20% 0 264);
@@ -47,29 +40,23 @@
   --text: oklch(96% 0 264);
   --text-muted: oklch(76% 0 264);
 
-  --shadow-s:
-  inset 0 1px 2px #ffffff30,
-  0 1px 2px #00000030,
-  0 2px 4px #00000015;
+  --shadow-s: inset 0 1px 2px #ffffff30, 0 1px 2px #00000030, 0 2px 4px #00000015;
 
-  --shadow-m:
-  inset 0 1px 2px #ffffff50,
-  0 2px 4px #00000030,
-  0 4px 8px #00000015;
+  --shadow-m: inset 0 1px 2px #ffffff50, 0 2px 4px #00000030, 0 4px 8px #00000015;
 
-  --shadow-l:
-  inset 0 1px 2px #ffffff70,
-  0 4px 6px #00000030,
-  0 6px 10px #00000015;
+  --shadow-l: inset 0 1px 2px #ffffff70, 0 4px 6px #00000030, 0 6px 10px #00000015;
 
   --side-bar-bg: #232324;
   --menu-selected-bg: rgba(255, 255, 255, 0.08);
-  
+
   --logo-fill: #ffffff;
   --letter-m-fill: #000000;
 
   --folder-hover-fill: #1f1f22;
 
   --context-menu-item-hover-bg: #3b3b40;
-  --context-menu-divider: #3F3F3F;
+  --context-menu-item-danger-hover-bg: #5c3e3e;
+  --context-menu-divider: #3f3f3f;
+
+  --message-bg-color: #1f1f1f;
 }

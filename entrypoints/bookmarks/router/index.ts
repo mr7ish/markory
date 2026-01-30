@@ -1,6 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import BasicLayout from "@/entrypoints/bookmarks/layout/index.vue";
-import BookmarksLayout from "@/entrypoints/bookmarks/pages/bookmarks/index.vue";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -8,26 +7,19 @@ const router = createRouter({
     {
       path: "/",
       component: BasicLayout,
-      redirect: "/bookmarks",
+      redirect: () => {
+        return {
+          name: "bookmarks",
+          query: {
+            id: "folder",
+          },
+        };
+      },
       children: [
         {
           path: "bookmarks",
           name: "bookmarks",
-          component: BookmarksLayout,
-          redirect: {
-            name: "bookmarks-folder",
-            params: { id: "root" },
-          },
-          children: [
-            {
-              path: "folder/:id",
-              name: "bookmarks-folder",
-              component: () =>
-                import(
-                  "@/entrypoints/bookmarks/pages/bookmarks/components/FolderPage.vue"
-                ),
-            },
-          ],
+          component: () => import("@/bookmarks/pages/bookmarks/index.vue"),
         },
       ],
     },

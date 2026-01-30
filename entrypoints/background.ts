@@ -6,12 +6,12 @@ export default defineBackground(() => {
     if (message.action === "openTab") {
       console.log("log =>", message);
 
-      browser.windows.create({
-        url: message.url,
-        type: "normal",
-      });
+      // browser.windows.create({
+      //   url: message.url,
+      //   type: "normal",
+      // });
 
-      return;
+      // return;
       browser.tabs.create({ url: message.url });
     }
   });

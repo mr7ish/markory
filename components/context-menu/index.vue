@@ -19,7 +19,7 @@
         <li
           v-else
           class="menu-item"
-          :class="{ disabled: item.disabled }"
+          :class="{ disabled: item.disabled, danger: item.danger }"
           @click="onItemClick(item)"
         >
           {{ item.label }}
@@ -89,7 +89,7 @@ watch(
       await nextTick();
       adjustPosition();
     }
-  }
+  },
 );
 
 // 关闭逻辑
@@ -139,6 +139,14 @@ onUnmounted(() => {
 
 .menu-item:hover {
   background-color: var(--context-menu-item-hover-bg);
+}
+
+.menu-item.danger {
+  color: #f56c6c;
+}
+
+.menu-item.danger:hover {
+  background-color: var(--context-menu-item-danger-hover-bg);
 }
 
 .menu-item.disabled {

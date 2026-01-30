@@ -7,4 +7,5 @@ export interface ContextMenuItem {
   value: string;
   disabled?: boolean;
   divided?: boolean;
+  danger?: boolean;
 }
