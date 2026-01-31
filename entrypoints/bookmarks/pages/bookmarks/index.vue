@@ -71,7 +71,7 @@ const showNodes = computed(() => {
 });
 
 function focus(node: Browser.bookmarks.BookmarkTreeNode) {
-  if (!focusNodes.value.map((i) => i.id).includes(node.id)) {
+  if (!focusNodeIds.value.includes(node.id)) {
     setFocusNodes([...focusNodes.value, node]);
     return;
   }

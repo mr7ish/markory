@@ -176,7 +176,6 @@ const contextMenuTask = {
         x: x.value,
         y: y.value,
       });
-      return;
     }
     emits("focus", contextNode.value);
   },
