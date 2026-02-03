@@ -22,62 +22,69 @@
 import IconTag from "@/components/IconTag.vue";
 import { useRoute, useRouter } from "vue-router";
 
+export interface BreadCrumbRoute {
+  title: string;
+  id: string;
+}
+
+const { routes = [], menus = [] } = defineProps<{
+  routes?: BreadCrumbRoute[];
+  menus?: {
+    title: string;
+    id: string;
+    icon: string;
+    activeIcon: string;
+  }[];
+}>();
+
+const emits = defineEmits<{
+  setRoutes: [routes: BreadCrumbRoute[]];
+}>();
+
 const route = useRoute();
 const router = useRouter();
-
-const mapping = {
-  folder: [
-    {
-      title: "全部文件夹",
-      id: "folder",
-    },
-  ],
-  focus: [
-    {
-      title: "特别关注",
-      id: "focus",
-    },
-  ],
-  recycle: [
-    {
-      title: "回收站",
-      id: "recycle",
-    },
-  ],
-};
-
-const routes = shallowRef<{ title: string; id: string }[]>([]);
 
 watch(
   () => route.query.id,
   () => {
+    console.log("breadcrumb => ", route);
+
     if (isNaN(Number(route.query.id))) {
-      routes.value = mapping[route.query.id as keyof typeof mapping] || [];
+      const target = menus.find((i) => i.id === route.query.id);
+      emits(
+        "setRoutes",
+        target
+          ? [target].map((i) => ({
+              id: i.id,
+              title: i.title,
+            }))
+          : [],
+      );
       return;
     }
 
-    const index = routes.value.findIndex((i) => i.id === route.query.id);
+    const index = routes.findIndex((i) => i.id === route.query.id);
 
     if (index !== -1) {
-      routes.value = routes.value.splice(index + 1);
+      const _routes = routes.splice(index + 1);
+      emits("setRoutes", _routes);
       return;
     }
 
-    routes.value = [
-      ...routes.value,
+    const _routes = [
+      ...routes,
       {
         id: route.query.id as string,
         title: route.query.title as string,
       },
     ];
-  },
-  {
-    immediate: true,
+
+    emits("setRoutes", _routes);
   },
 );
 
 function jumpTo(route: { id: string; title: string }) {
-  if (routes.value.length === 0) {
+  if (routes.length === 0) {
     return;
   }
 

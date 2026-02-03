@@ -1,17 +1,17 @@
 <template>
   <div class="menu-island">
     <div
-      v-for="(menu, index) in menus"
-      :key="menu.value"
+      v-for="menu in menus"
+      :key="menu.id"
       class="menu-item"
-      @click="clickMenu(menu, index)"
+      @click="clickMenu(menu)"
     >
       <IconTag
-        :icon="activeMenu === menu.value ? menu.activeIcon : menu.icon"
+        :icon="activeMenu === menu.id ? menu.activeIcon : menu.icon"
         width="20"
         class="animate__animated"
         :class="{
-          animate__bounceIn: activeMenu === menu.value,
+          animate__bounceIn: activeMenu === menu.id,
         }"
       />
       <div class="menu-tooltip">
@@ -31,45 +31,31 @@
 import IconTag from "@/components/IconTag.vue";
 import { useRouter } from "vue-router";
 
-const activeMenu = defineModel("activeMenu", {
-  default: "folder",
-});
+const { activeMenu, menus = [] } = defineProps<{
+  activeMenu: string;
+  menus?: {
+    title: string;
+    id: string;
+    icon: string;
+    activeIcon: string;
+  }[];
+}>();
+
+const emits = defineEmits<{
+  change: [value: string];
+}>();
 
 const router = useRouter();
 
-const menus = [
-  {
-    title: "全部文件夹",
-    value: "folder",
-    icon: "basil:folder-open-outline",
-    activeIcon: "basil:folder-open-solid",
-  },
-  {
-    title: "特别关注",
-    value: "focus",
-    icon: "si:heart-line",
-    activeIcon: "si:heart-fill",
-  },
-  {
-    title: "回收站",
-    value: "recycle",
-    icon: "basil:trash-outline",
-    activeIcon: "basil:trash-solid",
-    // icon: "flowbite:trash-bin-outline",
-    // activeIcon: "flowbite:trash-bin-solid",
-  },
-];
+const offset = computed(() => menus.findIndex((menu) => menu.id === activeMenu));
 
-const offset = ref(menus.findIndex((menu) => menu.value === activeMenu.value));
-
-function clickMenu(menu: (typeof menus)[0], index: number) {
-  activeMenu.value = menu.value;
-  offset.value = index;
+function clickMenu(menu: (typeof menus)[0]) {
+  emits("change", menu.id);
 
   router.push({
     name: "bookmarks",
     query: {
-      id: menu.value,
+      id: menu.id,
       title: menu.title,
     },
   });

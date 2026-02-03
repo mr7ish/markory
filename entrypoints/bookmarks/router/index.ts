@@ -10,9 +10,9 @@ const router = createRouter({
       redirect: () => {
         return {
           name: "bookmarks",
-          query: {
-            id: "folder",
-          },
+          // query: {
+          //   id: "folder",
+          // },
         };
       },
       children: [

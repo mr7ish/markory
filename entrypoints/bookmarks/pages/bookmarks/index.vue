@@ -1,6 +1,10 @@
 <template>
   <div class="bookmark-layout-wrapper">
-    <BreadCrumb />
+    <BreadCrumb
+      :routes="routes"
+      :menus="menus"
+      @set-routes="setRoutes"
+    />
     <div class="bookmark-content-wrapper">
       <DisplayPage
         :nodes="showNodes"
@@ -10,31 +14,94 @@
         @recycle="recycle"
       />
     </div>
-    <MenuIsland v-model:activeMenu="activeMenu" />
+    <MenuIsland
+      :active-menu="activeMenu"
+      :menus="menus"
+      @change="setActiveMenu"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useBookmarkNodesQuery } from "@/bookmarks/queries/bookmarks";
-import BreadCrumb from "./components/BreadCrumb.vue";
+import BreadCrumb, { BreadCrumbRoute } from "./components/BreadCrumb.vue";
 import DisplayPage from "./components/DisplayPage.vue";
 import { watchNode } from "@/bookmarks/api/bookmarks";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useIDBKeyval } from "@vueuse/integrations/useIDBKeyval";
 import MenuIsland from "./components/MenuIsland.vue";
+import { watchOnce } from "@vueuse/core";
 
+const router = useRouter();
 const route = useRoute();
-const activeMenu = ref("folder");
 
-watch(
-  () => route.query,
-  (_route) => {
-    console.log("_route => ", _route);
+const menus = [
+  {
+    title: "全部文件夹",
+    id: "folder",
+    icon: "basil:folder-open-outline",
+    activeIcon: "basil:folder-open-solid",
   },
   {
-    immediate: true,
+    title: "特别关注",
+    id: "focus",
+    icon: "si:heart-line",
+    activeIcon: "si:heart-fill",
   },
-);
+  {
+    title: "回收站",
+    id: "recycle",
+    icon: "basil:trash-outline",
+    activeIcon: "basil:trash-solid",
+    // icon: "flowbite:trash-bin-outline",
+    // activeIcon: "flowbite:trash-bin-solid",
+  },
+];
+
+const { data: activeMenu, set: setActiveMenu } = useIDBKeyval<string>("active-menu", menus[0].id);
+
+const {
+  data: routes,
+  set: setRoutes,
+  isFinished: isRoutesFinished,
+} = useIDBKeyval<BreadCrumbRoute[]>("bread-crumb-routes", [], {
+  shallow: true,
+});
+
+watchOnce(isRoutesFinished, (isFinished) => {
+  console.log("watchOnce => ", isFinished);
+  if (!isFinished) return;
+  if (routes.value.length > 1) {
+    const lastRoute = routes.value[routes.value.length - 1];
+    router.replace({
+      name: "bookmarks",
+      query: {
+        id: lastRoute.id,
+        title: lastRoute.title,
+      },
+    });
+    return;
+  }
+
+  if (routes.value.length === 1) {
+    router.replace({
+      name: "bookmarks",
+      query: {
+        id: routes.value[0].id,
+        title: routes.value[0].title,
+      },
+    });
+    return;
+  }
+
+  router.replace({
+    name: "bookmarks",
+    query: {
+      id: menus[0].id,
+      title: menus[0].title,
+    },
+  });
+});
 
 const { nodes, fetchTopNodes, fetchChildrenNodes } = useBookmarkNodesQuery();
 
@@ -55,7 +122,7 @@ const { data: recycleNodes, set: setRecycleNodes } = useIDBKeyval<
 });
 
 const showNodes = computed(() => {
-  if (activeMenu.value === "folder") {
+  if (activeMenu.value === "folder" || !isNaN(Number(route.query.id))) {
     return nodes.value.filter((i) => !recycleNodes.value.map((j) => j.id).includes(i.id));
   }
 
