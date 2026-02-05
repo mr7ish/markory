@@ -27,6 +27,9 @@
   --context-menu-divider: #e0e0e0;
 
   --message-bg-color: #ffffff;
+
+  --confirm-bg-color: #ffffff;
+  --confirm-btn-color: #ffffff;
 }
 
 :root.dark {
@@ -59,4 +62,7 @@
   --context-menu-divider: #3f3f3f;
 
   --message-bg-color: #1f1f1f;
+
+  --confirm-bg-color: #313136;
+  --confirm-btn-color: #333333;
 }

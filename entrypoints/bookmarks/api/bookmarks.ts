@@ -69,9 +69,28 @@ export async function editNode(params: { id: string; changes: Browser.bookmarks.
   }
 }
 
+/**
+ * 删除文件夹或书签
+ */
+export async function removeNode(id: string) {
+  try {
+    await browser.bookmarks.removeTree(id);
+    return true;
+  } catch (err) {
+    message.error("删除失败: " + err);
+    return false;
+  }
+}
+
 interface BookmarkTreeNodeChangeInfo {
   title: string;
   url?: string | undefined;
+}
+
+interface BookmarkTreeNodeRemoveInfo {
+  parentId: string;
+  index: number;
+  node: globalThis.Browser.bookmarks.BookmarkTreeNode;
 }
 
 export function watchNode(
@@ -80,9 +99,11 @@ export function watchNode(
     {
       node,
       changeInfo,
+      removeInfo,
     }: {
       node?: Browser.bookmarks.BookmarkTreeNode;
       changeInfo?: BookmarkTreeNodeChangeInfo;
+      removeInfo?: BookmarkTreeNodeRemoveInfo;
     },
   ) => void,
 ) {
@@ -94,5 +115,10 @@ export function watchNode(
   browser.bookmarks.onChanged.addListener((id, changeInfo) => {
     console.log("watchNodeChanged", id, changeInfo);
     callback?.(id, { changeInfo });
+  });
+
+  browser.bookmarks.onRemoved.addListener((id, removeInfo) => {
+    console.log("watchNodeRemoved", id, removeInfo);
+    callback?.(id, { removeInfo });
   });
 }

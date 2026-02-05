@@ -10,6 +10,7 @@
         :nodes="showNodes"
         :module="activeMenu"
         :focus-node-ids="focusNodeIds"
+        :recycle-node-ids="recycleNodeIds"
         @focus="focus"
         @recycle="recycle"
       />
@@ -119,6 +120,8 @@ const { data: recycleNodes, set: setRecycleNodes } = useIDBKeyval<
   shallow: true,
 });
 
+const recycleNodeIds = computed(() => recycleNodes.value.map((i) => i.id));
+
 const showNodes = computed(() => {
   if (activeMenu.value === "folder" || !isNaN(Number(route.query.id))) {
     return nodes.value.filter((i) => !recycleNodes.value.map((j) => j.id).includes(i.id));
@@ -145,15 +148,26 @@ function focus(node: Browser.bookmarks.BookmarkTreeNode) {
 }
 
 function recycle(node: Browser.bookmarks.BookmarkTreeNode) {
-  if (recycleNodes.value.map((i) => i.id).includes(node.id)) return;
-  setRecycleNodes([...recycleNodes.value, node]);
+  if (!recycleNodeIds.value.includes(node.id)) {
+    setRecycleNodes([...recycleNodes.value, node]);
+    return;
+  }
+
+  setRecycleNodes(recycleNodes.value.filter((i) => i.id !== node.id));
 }
 
 watchEffect(() => {
   console.log("showNodes => ", showNodes.value);
 });
 
-watchNode((id: string) => {
+watchNode((id: string, { removeInfo }) => {
+  console.log("watchNode => ", id);
+
+  if (removeInfo) {
+    setRecycleNodes(recycleNodes.value.filter((i) => i.id !== id && i.parentId !== id));
+    setFocusNodes(focusNodes.value.filter((i) => i.id !== id && i.parentId !== id));
+  }
+
   const queryId = route.query.id as string;
 
   if (queryId === "folder") {

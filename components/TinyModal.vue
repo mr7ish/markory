@@ -16,7 +16,7 @@
             class="modal-container"
             :style="{
               width: typeof width === 'number' ? width + 'px' : width,
-              '--offset-y': offSetY + 'px',
+              '--offset-y': offsetY + 'px',
             }"
             @click.stop
           >
@@ -53,14 +53,14 @@ interface Props {
   closeOnMask?: boolean;
   width?: string | number;
   destroyOnClose?: boolean;
-  offSetY?: number;
+  offsetY?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   closeOnMask: true,
   width: "480px",
   destroyOnClose: false,
-  offSetY: -100,
+  offsetY: -100,
 });
 
 const emit = defineEmits<{
@@ -84,7 +84,7 @@ watch(
     if (val) {
       rendered.value = true;
     }
-  }
+  },
 );
 
 function close() {
@@ -175,7 +175,9 @@ onUnmounted(() => {
 /* 内容动画 */
 .modal-zoom-enter-active,
 .modal-zoom-leave-active {
-  transition: transform 0.25s ease, opacity 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
 }
 .modal-zoom-enter-from,
 .modal-zoom-leave-to {

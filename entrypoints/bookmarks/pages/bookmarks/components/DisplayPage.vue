@@ -46,6 +46,28 @@
       @confirm="getValues"
     />
 
+    <TinyConfirm
+      v-model="recycleConfirmVisible"
+      title="放入回收站"
+      content="10天内可在回收站中找回已删除文件。若不需要找回，请及时去回收站清理。"
+      :maskClosable="false"
+      confirm-text="确认放入"
+      type="danger"
+      @confirm="recycleConfirm"
+      @cancel="contextNode = undefined"
+    />
+
+    <TinyConfirm
+      v-model="deleteConfirmVisible"
+      :title="`删除${isFolderNode ? '文件夹' : '书签'}`"
+      content="确认删除吗？！删除后将无法恢复。"
+      :maskClosable="false"
+      confirm-text="确认删除"
+      type="danger"
+      @confirm="deleteConfirm"
+      @cancel="contextNode = undefined"
+    />
+
     <HeartBeat ref="heartBeatRef" />
   </div>
 </template>
@@ -61,19 +83,22 @@ import CreateModal, { FormValues } from "./CreateModal.vue";
 import { useDarkMode } from "@/bookmarks/hooks/useDarkMode";
 import blackLogo from "@/assets/logo-black.svg";
 import whiteLogo from "@/assets/logo-white.svg";
-import { createNode, editNode } from "@/bookmarks/api/bookmarks";
+import { createNode, editNode, removeNode } from "@/bookmarks/api/bookmarks";
 import { message } from "@/components/tiny-message";
 import NodeItem from "./NodeItem.vue";
 import HeartBeat from "@/components/HeartBeat.vue";
+import TinyConfirm from "@/components/TinyConfirm.vue";
 
 const {
   nodes = [],
   module = "folder",
   focusNodeIds = [],
+  recycleNodeIds = [],
 } = defineProps<{
   nodes?: Browser.bookmarks.BookmarkTreeNode[];
   module?: string;
   focusNodeIds?: string[];
+  recycleNodeIds?: string[];
 }>();
 
 const emits = defineEmits<{
@@ -82,6 +107,24 @@ const emits = defineEmits<{
 }>();
 
 const heartBeatRef = useTemplateRef("heartBeatRef");
+
+const recycleConfirmVisible = ref(false);
+const deleteConfirmVisible = ref(false);
+
+async function deleteConfirm() {
+  if (!contextNode.value) return;
+  const success = await removeNode(contextNode.value.id);
+  if (success) {
+    message.success("删除成功");
+    contextNode.value = undefined;
+  }
+}
+
+function recycleConfirm() {
+  if (!contextNode.value) return;
+  emits("recycle", contextNode.value);
+  message.info("已放入回收站，请及时清理");
+}
 
 watchEffect(() => {
   console.log("focusNodeIds => ", focusNodeIds);
@@ -134,7 +177,7 @@ const nodeContextMenus = computed<ContextMenuItem[]>(() => {
 
   if (module === "recycle") {
     return [
-      { label: "放回", value: "putBack" },
+      { label: "放回", value: "recycle" },
       { label: "删除", value: "delete", danger: true },
     ];
   }
@@ -181,10 +224,16 @@ const contextMenuTask = {
   },
   recycle: () => {
     if (!contextNode.value) return;
+    if (!recycleNodeIds.includes(contextNode.value.id)) {
+      recycleConfirmVisible.value = true;
+      return;
+    }
     emits("recycle", contextNode.value);
   },
-  delete: (item: ContextMenuItem) => {
-    console.log("delete =>", item);
+  delete: () => {
+    if (!contextNode.value) return;
+    isFolderNode.value = !contextNode.value.url;
+    deleteConfirmVisible.value = true;
   },
 };
 
