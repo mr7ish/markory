@@ -47,7 +47,7 @@ const router = useRouter();
 watch(
   () => route.query,
   (query) => {
-    console.log("breadcrumb => ", query);
+    // console.log("breadcrumb => ", query);
     if (!!query.isInit) return;
 
     if (isNaN(Number(query.id))) {
@@ -67,7 +67,7 @@ watch(
     const index = routes.findIndex((i) => i.id === query.id);
 
     if (index !== -1) {
-      const _routes = routes.splice(index + 1);
+      const _routes = routes.slice(0, index + 1);
       emits("setRoutes", _routes);
       return;
     }
