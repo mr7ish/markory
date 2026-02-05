@@ -69,28 +69,19 @@ const {
 });
 
 watchOnce(isRoutesFinished, (isFinished) => {
-  console.log("watchOnce => ", isFinished);
   if (!isFinished) return;
-  if (routes.value.length > 1) {
+
+  if (routes.value.length > 1 || routes.value.length === 1) {
     const lastRoute = routes.value[routes.value.length - 1];
     router.replace({
       name: "bookmarks",
       query: {
         id: lastRoute.id,
         title: lastRoute.title,
+        isInit: 1,
       },
     });
-    return;
-  }
 
-  if (routes.value.length === 1) {
-    router.replace({
-      name: "bookmarks",
-      query: {
-        id: routes.value[0].id,
-        title: routes.value[0].title,
-      },
-    });
     return;
   }
 
@@ -99,6 +90,7 @@ watchOnce(isRoutesFinished, (isFinished) => {
     query: {
       id: menus[0].id,
       title: menus[0].title,
+      isInit: 1,
     },
   });
 });

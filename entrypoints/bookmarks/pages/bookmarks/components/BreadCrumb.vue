@@ -45,12 +45,13 @@ const route = useRoute();
 const router = useRouter();
 
 watch(
-  () => route.query.id,
-  () => {
-    console.log("breadcrumb => ", route);
+  () => route.query,
+  (query) => {
+    console.log("breadcrumb => ", query);
+    if (!!query.isInit) return;
 
-    if (isNaN(Number(route.query.id))) {
-      const target = menus.find((i) => i.id === route.query.id);
+    if (isNaN(Number(query.id))) {
+      const target = menus.find((i) => i.id === query.id);
       emits(
         "setRoutes",
         target
@@ -63,7 +64,7 @@ watch(
       return;
     }
 
-    const index = routes.findIndex((i) => i.id === route.query.id);
+    const index = routes.findIndex((i) => i.id === query.id);
 
     if (index !== -1) {
       const _routes = routes.splice(index + 1);
@@ -74,8 +75,8 @@ watch(
     const _routes = [
       ...routes,
       {
-        id: route.query.id as string,
-        title: route.query.title as string,
+        id: query.id as string,
+        title: query.title as string,
       },
     ];
 
