@@ -58,7 +58,11 @@ const menus = [
   },
 ];
 
-const { data: activeMenu, set: setActiveMenu } = useIDBKeyval<string>("active-menu", menus[0].id);
+const activeMenu = ref(menus[0].id);
+
+function setActiveMenu(id: string) {
+  activeMenu.value = id;
+}
 
 const {
   data: routes,
@@ -72,6 +76,8 @@ watchOnce(isRoutesFinished, (isFinished) => {
   if (!isFinished) return;
 
   if (routes.value.length > 1 || routes.value.length === 1) {
+    setActiveMenu(routes.value[0].id);
+
     const lastRoute = routes.value[routes.value.length - 1];
     router.replace({
       name: "bookmarks",
