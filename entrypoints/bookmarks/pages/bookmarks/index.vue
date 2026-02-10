@@ -114,25 +114,51 @@ const { data: focusNodes, set: setFocusNodes } = useIDBKeyval<Browser.bookmarks.
 
 const focusNodeIds = computed(() => focusNodes.value.map((i) => i.id));
 
-const { data: recycleNodes, set: setRecycleNodes } = useIDBKeyval<
-  Browser.bookmarks.BookmarkTreeNode[]
+const {
+  data: recycleNodes,
+  set: setRecycleNodes,
+  isFinished: isRecycleNodesFinished,
+} = useIDBKeyval<
+  {
+    timestamp: number;
+    node: Browser.bookmarks.BookmarkTreeNode;
+  }[]
 >("recycle-nodes", [], {
   shallow: true,
 });
 
-const recycleNodeIds = computed(() => recycleNodes.value.map((i) => i.id));
+watchOnce(isRecycleNodesFinished, removeExpiredRecycleNodes);
+
+watch(activeMenu, (_activeMenu) => {
+  if (_activeMenu === "recycle") {
+    removeExpiredRecycleNodes();
+  }
+});
+
+function removeExpiredRecycleNodes() {
+  const EXPIRY_DAYS = 10;
+  const expiryTime = Date.now() - EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+
+  const activeNodes = recycleNodes.value.filter((i) => i.timestamp > expiryTime);
+
+  if (activeNodes.length !== recycleNodes.value.length) {
+    setRecycleNodes(activeNodes);
+  }
+}
+
+const recycleNodeIds = computed(() => recycleNodes.value.map((i) => i.node.id));
 
 const showNodes = computed(() => {
   if (activeMenu.value === "folder" || !isNaN(Number(route.query.id))) {
-    return nodes.value.filter((i) => !recycleNodes.value.map((j) => j.id).includes(i.id));
+    return nodes.value.filter((i) => !recycleNodes.value.map((j) => j.node.id).includes(i.id));
   }
 
   if (activeMenu.value === "focus") {
-    return focusNodes.value.filter((i) => !recycleNodes.value.map((j) => j.id).includes(i.id));
+    return focusNodes.value.filter((i) => !recycleNodes.value.map((j) => j.node.id).includes(i.id));
   }
 
   if (activeMenu.value === "recycle") {
-    return recycleNodes.value;
+    return recycleNodes.value.map((i) => i.node);
   }
 
   return nodes.value;
@@ -149,11 +175,17 @@ function focus(node: Browser.bookmarks.BookmarkTreeNode) {
 
 function recycle(node: Browser.bookmarks.BookmarkTreeNode) {
   if (!recycleNodeIds.value.includes(node.id)) {
-    setRecycleNodes([...recycleNodes.value, node]);
+    setRecycleNodes([
+      ...recycleNodes.value,
+      {
+        timestamp: Date.now(),
+        node,
+      },
+    ]);
     return;
   }
 
-  setRecycleNodes(recycleNodes.value.filter((i) => i.id !== node.id));
+  setRecycleNodes(recycleNodes.value.filter((i) => i.node.id !== node.id));
 }
 
 watchEffect(() => {
@@ -164,7 +196,7 @@ watchNode((id: string, { removeInfo }) => {
   console.log("watchNode => ", id);
 
   if (removeInfo) {
-    setRecycleNodes(recycleNodes.value.filter((i) => i.id !== id && i.parentId !== id));
+    setRecycleNodes(recycleNodes.value.filter((i) => i.node.id !== id && i.node.parentId !== id));
     setFocusNodes(focusNodes.value.filter((i) => i.id !== id && i.parentId !== id));
   }
 
