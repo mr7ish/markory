@@ -93,6 +93,13 @@ interface BookmarkTreeNodeRemoveInfo {
   node: globalThis.Browser.bookmarks.BookmarkTreeNode;
 }
 
+interface BookmarkTreeNodeMoveInfo {
+  parentId: string;
+  index: number;
+  oldParentId: string;
+  oldIndex: number;
+}
+
 export function watchNode(
   callback?: (
     id: string,
@@ -104,6 +111,7 @@ export function watchNode(
       node?: Browser.bookmarks.BookmarkTreeNode;
       changeInfo?: BookmarkTreeNodeChangeInfo;
       removeInfo?: BookmarkTreeNodeRemoveInfo;
+      moveInfo?: BookmarkTreeNodeMoveInfo;
     },
   ) => void,
 ) {
@@ -120,5 +128,10 @@ export function watchNode(
   browser.bookmarks.onRemoved.addListener((id, removeInfo) => {
     console.log("watchNodeRemoved", id, removeInfo);
     callback?.(id, { removeInfo });
+  });
+
+  browser.bookmarks.onMoved.addListener((id, moveInfo) => {
+    console.log("watchNodeMoved", id, moveInfo);
+    callback?.(id, { moveInfo });
   });
 }
