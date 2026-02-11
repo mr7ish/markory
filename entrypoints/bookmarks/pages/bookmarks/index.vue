@@ -27,7 +27,7 @@
 import { useBookmarkNodesQuery } from "@/bookmarks/queries/bookmarks";
 import BreadCrumb, { BreadCrumbRoute } from "./components/BreadCrumb.vue";
 import DisplayPage from "./components/DisplayPage.vue";
-import { watchNode } from "@/bookmarks/api/bookmarks";
+import { removeNode, watchNode } from "@/bookmarks/api/bookmarks";
 import { useRoute, useRouter } from "vue-router";
 import { useIDBKeyval } from "@vueuse/integrations/useIDBKeyval";
 import MenuIsland from "./components/MenuIsland.vue";
@@ -135,15 +135,18 @@ watch(activeMenu, (_activeMenu) => {
   }
 });
 
-function removeExpiredRecycleNodes() {
+async function removeExpiredRecycleNodes() {
   const EXPIRY_DAYS = 10;
   const expiryTime = Date.now() - EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+  // const expiryTime = Date.now() - 1 * 60 * 1000 * 0.5;
 
-  const activeNodes = recycleNodes.value.filter((i) => i.timestamp > expiryTime);
+  const expiredNodes = recycleNodes.value.filter((i) => i.timestamp < expiryTime);
+  if (expiredNodes.length === 0) return;
 
-  if (activeNodes.length !== recycleNodes.value.length) {
-    setRecycleNodes(activeNodes);
-  }
+  const expiredIds = new Set(expiredNodes.map((i) => i.node.id));
+  setRecycleNodes(recycleNodes.value.filter((i) => !expiredIds.has(i.node.id)));
+
+  await Promise.all(expiredNodes.map((i) => removeNode(i.node.id)));
 }
 
 const recycleNodeIds = computed(() => recycleNodes.value.map((i) => i.node.id));
