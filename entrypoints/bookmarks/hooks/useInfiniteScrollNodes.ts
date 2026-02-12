@@ -11,7 +11,7 @@ export function useInfiniteScrollNodes<T>(
   allItems: () => T[],
   options: Options = {},
 ) {
-  const { pageSize = 20, distance = 50, interval = 300 } = options;
+  const { pageSize = 20, distance = 100, interval = 300 } = options;
 
   const displayedCount = ref(pageSize);
   const isLoading = ref(false);
@@ -48,11 +48,17 @@ export function useInfiniteScrollNodes<T>(
   }
 
   // 重置显示数量和滚动位置
-  function reset() {
+  async function reset() {
     displayedCount.value = pageSize;
     const el = containerRef.value;
     if (el) {
       el.scrollTop = 0;
+    }
+    // 重置后检查是否需要自动加载更多（用于解决切换模块后不触发滚动加载的问题）
+    await nextTick();
+    if (hasMore.value) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      await loadMore();
     }
   }
 
