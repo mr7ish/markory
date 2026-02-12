@@ -68,6 +68,16 @@
       @cancel="contextNode = undefined"
     />
 
+    <TinyConfirm
+      v-model="clearConfirmVisible"
+      title="清空回收站"
+      content="确认清空回收站吗？！清空后将无法恢复。"
+      :maskClosable="false"
+      confirm-text="确认清空"
+      type="danger"
+      @confirm="clearConfirm"
+    />
+
     <HeartBeat ref="heartBeatRef" />
   </div>
 </template>
@@ -110,6 +120,14 @@ const heartBeatRef = useTemplateRef("heartBeatRef");
 
 const recycleConfirmVisible = ref(false);
 const deleteConfirmVisible = ref(false);
+const clearConfirmVisible = ref(false);
+
+async function clearConfirm() {
+  if (recycleNodeIds.length === 0) return;
+  await Promise.all(recycleNodeIds.map((i) => removeNode(i)));
+  message.success("清空成功");
+  clearConfirmVisible.value = false;
+}
 
 async function deleteConfirm() {
   if (!contextNode.value) return;
@@ -234,6 +252,13 @@ const contextMenuTask = {
     if (!contextNode.value) return;
     isFolderNode.value = !contextNode.value.url;
     deleteConfirmVisible.value = true;
+  },
+  clear: () => {
+    if (recycleNodeIds.length === 0) {
+      message.warning("回收站为空");
+      return;
+    }
+    clearConfirmVisible.value = true;
   },
 };
 

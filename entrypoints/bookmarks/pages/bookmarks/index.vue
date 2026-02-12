@@ -138,15 +138,13 @@ watch(activeMenu, (_activeMenu) => {
 async function removeExpiredRecycleNodes() {
   const EXPIRY_DAYS = 10;
   const expiryTime = Date.now() - EXPIRY_DAYS * 24 * 60 * 60 * 1000;
-  // const expiryTime = Date.now() - 1 * 60 * 1000 * 0.5;
 
-  const expiredNodes = recycleNodes.value.filter((i) => i.timestamp < expiryTime);
-  if (expiredNodes.length === 0) return;
+  const expiredIds = recycleNodes.value
+    .filter((i) => i.timestamp < expiryTime)
+    .map((i) => i.node.id);
+  if (expiredIds.length === 0) return;
 
-  const expiredIds = new Set(expiredNodes.map((i) => i.node.id));
-  setRecycleNodes(recycleNodes.value.filter((i) => !expiredIds.has(i.node.id)));
-
-  await Promise.all(expiredNodes.map((i) => removeNode(i.node.id)));
+  await Promise.all(expiredIds.map((i) => removeNode(i)));
 }
 
 const recycleNodeIds = computed(() => recycleNodes.value.map((i) => i.node.id));
@@ -195,12 +193,36 @@ watchEffect(() => {
   console.log("showNodes => ", showNodes.value);
 });
 
+const pendingDeleteIds = ref<string[]>([]);
+let deleteTimer: ReturnType<typeof setTimeout> | null = null;
+
+function flushPendingDeletes() {
+  if (pendingDeleteIds.value.length > 0) {
+    const deleteIds = new Set(pendingDeleteIds.value);
+    setRecycleNodes(
+      recycleNodes.value.filter(
+        (i) => !deleteIds.has(i.node.id) && !deleteIds.has(i.node.parentId!),
+      ),
+    );
+    setFocusNodes(
+      focusNodes.value.filter((i) => !deleteIds.has(i.id) && !deleteIds.has(i.parentId!)),
+    );
+    pendingDeleteIds.value = [];
+  }
+
+  deleteTimer = null;
+}
+
 watchNode((id: string, { removeInfo }) => {
   console.log("watchNode => ", id);
 
   if (removeInfo) {
-    setRecycleNodes(recycleNodes.value.filter((i) => i.node.id !== id && i.node.parentId !== id));
-    setFocusNodes(focusNodes.value.filter((i) => i.id !== id && i.parentId !== id));
+    pendingDeleteIds.value.push(id);
+
+    if (deleteTimer) {
+      clearTimeout(deleteTimer);
+    }
+    deleteTimer = setTimeout(flushPendingDeletes, 500);
   }
 
   const queryId = route.query.id as string;
