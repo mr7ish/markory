@@ -21,6 +21,7 @@
         v-model:favicon-load-state="faviconLoadState"
         :is-focused="focusNodeIds.includes(node.id)"
         :disabled="module === 'recycle'"
+        :drag-disabled="isDragDisabled"
         @contextmenu.stop.prevent="
           ($event: MouseEvent) => {
             contextNode = node;
@@ -130,6 +131,9 @@ const heartBeatRef = useTemplateRef("heartBeatRef");
 const recycleConfirmVisible = ref(false);
 const deleteConfirmVisible = ref(false);
 const clearConfirmVisible = ref(false);
+
+// 拖拽禁用判断（focus 和 recycle 模块下禁用拖拽）
+const isDragDisabled = computed(() => ['recycle', 'focus'].includes(module));
 
 // 无限滚动
 const scrollContainer = useTemplateRef("scrollContainer");

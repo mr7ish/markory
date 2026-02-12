@@ -82,6 +82,19 @@ export async function removeNode(id: string) {
   }
 }
 
+/**
+ * 移动文件夹或书签到指定位置
+ */
+export async function moveNode(id: string, destination: { parentId?: string; index?: number }) {
+  try {
+    const node = await browser.bookmarks.move(id, destination);
+    return node;
+  } catch (err) {
+    message.error("移动失败: " + err);
+    return null;
+  }
+}
+
 interface BookmarkTreeNodeChangeInfo {
   title: string;
   url?: string | undefined;

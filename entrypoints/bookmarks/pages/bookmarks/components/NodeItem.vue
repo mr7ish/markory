@@ -2,8 +2,20 @@
   <div
     :key="node.id"
     class="node-item-wrapper"
+    :class="{
+      'is-dragging': isDragging,
+      'drag-over': isDragOver && !isDropDisabled,
+      'drag-disabled': isDropDisabled,
+    }"
+    :draggable="!dragDisabled"
     @click="onNodeClick(node)"
     @dblclick="onNodeDblClick(node)"
+    @dragstart="handleDragStart"
+    @dragend="handleDragEnd"
+    @dragenter="handleDragEnter"
+    @dragover="handleDragOver"
+    @dragleave="handleDragLeave"
+    @drop="handleDrop"
   >
     <IconTag
       v-if="!node.url"
@@ -87,6 +99,8 @@ import { useRouter } from "vue-router";
 import IconUndefined from "./IconUndefined.vue";
 import { DateFormat, formatTimestamp } from "@/utils";
 import { computed, ref, watch } from "vue";
+import { moveNode } from "@/bookmarks/api/bookmarks";
+import { message } from "@/components/tiny-message";
 
 const props = defineProps<{
   node: Browser.bookmarks.BookmarkTreeNode;
@@ -95,7 +109,13 @@ const props = defineProps<{
   systemIcon: string;
   iconList: string[];
   isFocused?: boolean;
-  disabled?: boolean;
+  disabled?: boolean; // 点击禁用（回收站）
+  dragDisabled?: boolean; // 拖拽禁用（特别关注 + 回收站）
+}>();
+
+const emits = defineEmits<{
+  dragStart: [node: Browser.bookmarks.BookmarkTreeNode, event: DragEvent];
+  dragEnd: [event: DragEvent];
 }>();
 
 const isExiting = ref(false);
@@ -132,6 +152,162 @@ const { onClick: onNodeClick, onDblClick: onNodeDblClick } =
       dbClick(node);
     },
   });
+
+const DRAG_DATA_KEY = "application/vnd.markory.bookmark-node";
+
+// 拖放目标状态
+const isDragging = ref(false);
+const isDragOver = ref(false);
+const isDropDisabled = ref(false);
+
+// 当前正在拖拽的节点 ID（从全局事件获取）
+const draggingNodeId = ref<string | null>(null);
+
+// 监听全局拖拽事件
+onMounted(() => {
+  window.addEventListener("markory:dragstart", handleGlobalDragStart as EventListener);
+  window.addEventListener("markory:dragend", handleGlobalDragEnd as EventListener);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("markory:dragstart", handleGlobalDragStart as EventListener);
+  window.removeEventListener("markory:dragend", handleGlobalDragEnd as EventListener);
+});
+
+function handleGlobalDragStart(e: CustomEvent<{ nodeId: string }>) {
+  draggingNodeId.value = e.detail.nodeId;
+  isDragging.value = e.detail.nodeId === props.node.id;
+}
+
+function handleGlobalDragEnd() {
+  draggingNodeId.value = null;
+  isDragging.value = false;
+  isDragOver.value = false;
+  isDropDisabled.value = false;
+}
+
+// 判断当前节点是否是文件夹
+const isFolder = computed(() => !props.node.url);
+
+function handleDragStart(event: DragEvent) {
+  if (props.disabled) {
+    event.preventDefault();
+    return;
+  }
+
+  const dragData = {
+    nodeId: props.node.id,
+    nodeTitle: props.node.title,
+  };
+  event.dataTransfer?.setData(DRAG_DATA_KEY, JSON.stringify(dragData));
+  event.dataTransfer!.effectAllowed = "move";
+
+  // 触发自定义事件，让 BreadCrumb 能够追踪拖拽状态
+  window.dispatchEvent(
+    new CustomEvent("markory:dragstart", {
+      detail: { nodeId: props.node.id },
+    }),
+  );
+
+  isDragging.value = true;
+  emits("dragStart", props.node, event);
+}
+
+function handleDragEnd(event: DragEvent) {
+  // 触发自定义事件，清除拖拽状态
+  window.dispatchEvent(new CustomEvent("markory:dragend"));
+
+  isDragging.value = false;
+  isDragOver.value = false;
+  isDropDisabled.value = false;
+  emits("dragEnd", event);
+}
+
+function handleDragEnter(event: DragEvent) {
+  event.preventDefault();
+
+  // 禁止拖拽到自己
+  if (!draggingNodeId.value || draggingNodeId.value === props.node.id) {
+    return;
+  }
+
+  // 只有文件夹可以作为拖放目标
+  if (!isFolder.value) {
+    isDropDisabled.value = true;
+    event.dataTransfer!.dropEffect = "none";
+    return;
+  }
+
+  isDropDisabled.value = false;
+  isDragOver.value = true;
+  event.dataTransfer!.dropEffect = "move";
+}
+
+function handleDragOver(event: DragEvent) {
+  event.preventDefault();
+
+  // 禁止拖拽到自己
+  if (!draggingNodeId.value || draggingNodeId.value === props.node.id) {
+    return;
+  }
+
+  // 只有文件夹可以作为拖放目标
+  if (!isFolder.value) {
+    isDropDisabled.value = true;
+    event.dataTransfer!.dropEffect = "none";
+    return;
+  }
+
+  isDropDisabled.value = false;
+  isDragOver.value = true;
+  event.dataTransfer!.dropEffect = "move";
+}
+
+function handleDragLeave(event: DragEvent) {
+  const target = event.currentTarget as HTMLElement;
+  const relatedTarget = event.relatedTarget as HTMLElement;
+  if (relatedTarget && target.contains(relatedTarget)) {
+    return;
+  }
+  isDragOver.value = false;
+  isDropDisabled.value = false;
+}
+
+async function handleDrop(event: DragEvent) {
+  event.preventDefault();
+  isDragOver.value = false;
+  isDropDisabled.value = false;
+
+  // 禁止拖拽到自己或书签
+  if (!draggingNodeId.value || draggingNodeId.value === props.node.id || !isFolder.value) {
+    return;
+  }
+
+  // 获取拖拽数据
+  const dragData = getDragData(event);
+  if (!dragData) return;
+
+  try {
+    const success = await moveNode(dragData.nodeId, { parentId: props.node.id });
+    if (success) {
+      message.success(`已移动"${dragData.nodeTitle}"到"${props.node.title}"`);
+      // 触发节点移动事件
+      window.dispatchEvent(new CustomEvent("markory:nodemoved"));
+    }
+  } catch (error) {
+    message.error("移动失败");
+  }
+}
+
+function getDragData(e: DragEvent) {
+  try {
+    const data = e.dataTransfer?.getData(DRAG_DATA_KEY);
+    if (!data) return null;
+    return JSON.parse(data) as { nodeId: string; nodeTitle: string };
+  } catch {
+    return null;
+  }
+}
 
 function clickNode(node: Browser.bookmarks.BookmarkTreeNode) {
   console.log("clickFolder", node);
@@ -245,6 +421,34 @@ function onIconError(evt: Event, nodeId: string) {
   gap: 4px;
   cursor: pointer;
   user-select: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    background-color 0.2s ease;
+
+  &[draggable="true"] {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &.is-dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+
+  &.drag-over {
+    background-color: var(--drag-over-bg);
+    border-radius: 8px;
+  }
+
+  &.drag-disabled {
+    background-color: rgba(255, 59, 48, 0.1);
+    border-radius: 8px;
+    cursor: not-allowed;
+  }
 
   .icon-focus {
     position: absolute;
