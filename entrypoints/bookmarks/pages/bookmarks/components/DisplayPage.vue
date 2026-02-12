@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="scrollContainer"
     class="node-page-wrapper"
     @contextmenu="openContextMenu($event, pageContextMenus)"
   >
@@ -8,7 +9,7 @@
       class="nodes-wrapper"
     >
       <NodeItem
-        v-for="node in nodes"
+        v-for="node in displayedNodes"
         :key="node.id"
         :node="node"
         :is-dark-mode="isDarkMode"
@@ -29,6 +30,13 @@
       />
     </div>
     <EmptyWrapper v-else />
+
+    <div
+      v-if="!hasMore && displayedNodes.length > 0"
+      class="no-more-hint"
+    >
+      <span>没有更多了~</span>
+    </div>
 
     <ContextMenu
       v-model:visible="visible"
@@ -91,6 +99,7 @@ import { useContextMenu } from "@/components/context-menu/hooks/useContextMenu";
 import { ContextMenuItem } from "@/components/context-menu";
 import CreateModal, { FormValues } from "./CreateModal.vue";
 import { useDarkMode } from "@/bookmarks/hooks/useDarkMode";
+import { useInfiniteScrollNodes } from "@/bookmarks/hooks/useInfiniteScrollNodes";
 import blackLogo from "@/assets/logo-black.svg";
 import whiteLogo from "@/assets/logo-white.svg";
 import { createNode, editNode, removeNode } from "@/bookmarks/api/bookmarks";
@@ -121,6 +130,13 @@ const heartBeatRef = useTemplateRef("heartBeatRef");
 const recycleConfirmVisible = ref(false);
 const deleteConfirmVisible = ref(false);
 const clearConfirmVisible = ref(false);
+
+// 无限滚动
+const scrollContainer = useTemplateRef("scrollContainer");
+const { displayedItems: displayedNodes, hasMore } = useInfiniteScrollNodes(
+  scrollContainer,
+  () => nodes,
+);
 
 async function clearConfirm() {
   if (recycleNodeIds.length === 0) return;
@@ -418,6 +434,18 @@ loadBookmarks();
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); // 根据宽度自动适应列数
     gap: 50px;
     row-gap: 30px;
+  }
+
+  .no-more-hint {
+    margin-top: 60px;
+    text-align: center;
+    color: #999;
+    font-size: 12px;
+    user-select: none;
+
+    span {
+      display: inline-block;
+    }
   }
 }
 </style>
