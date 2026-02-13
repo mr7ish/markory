@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { onStartTyping, useMouseInElement } from "@vueuse/core";
+import { useMouseInElement } from "@vueuse/core";
 import IconTag from "./IconTag.vue";
 
 const inputRef = useTemplateRef("inputRef");
@@ -46,10 +46,6 @@ const { isOutside } = useMouseInElement(inputRef);
 
 const modelValue = defineModel("modelValue", { default: "" });
 const isFocus = ref(false);
-
-onStartTyping(() => {
-  inputRef.value?.focus();
-});
 
 function clear() {
   modelValue.value = "";
