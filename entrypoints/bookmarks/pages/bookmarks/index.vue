@@ -11,6 +11,7 @@
         :module="activeMenu"
         :focus-node-ids="focusNodeIds"
         :recycle-node-ids="recycleNodeIds"
+        :route-ids="routes.slice(1).map((i) => i.id)"
         @focus="focus"
         @recycle="recycle"
       />
@@ -27,7 +28,7 @@
 import { useBookmarkNodesQuery } from "@/bookmarks/queries/bookmarks";
 import BreadCrumb, { BreadCrumbRoute } from "./components/BreadCrumb.vue";
 import DisplayPage from "./components/DisplayPage.vue";
-import { removeNode, watchNode } from "@/bookmarks/api/bookmarks";
+import { removeNode, startWatchNode } from "@/bookmarks/api/bookmarks";
 import { useRoute, useRouter } from "vue-router";
 import { useIDBKeyval } from "@vueuse/integrations/useIDBKeyval";
 import MenuIsland from "./components/MenuIsland.vue";
@@ -213,8 +214,8 @@ function flushPendingDeletes() {
   deleteTimer = null;
 }
 
-watchNode((id: string, { removeInfo }) => {
-  console.log("watchNode => ", id);
+const stop = startWatchNode((id: string, { removeInfo }) => {
+  console.log("watching Node => ", id);
 
   if (removeInfo) {
     pendingDeleteIds.value.push(id);
@@ -236,6 +237,8 @@ watchNode((id: string, { removeInfo }) => {
 
   fetchChildrenNodes(queryId);
 });
+
+onUnmounted(stop);
 </script>
 
 <style scoped lang="less">

@@ -87,6 +87,31 @@
       @confirm="clearConfirm"
     />
 
+    <TinyModal
+      v-model="treeVisible"
+      width="420px"
+      :closeOnMask="false"
+      destroyOnClose
+    >
+      <template #header> 移动到 </template>
+      <div class="tree-modal-content">
+        <BookmarkTree
+          v-model:selected-node="selectedNode"
+          :route-ids="routeIds"
+          :context-node-id="contextNode?.id || ''"
+        />
+      </div>
+      <div class="tree-footer-wrapper">
+        <TinyButton
+          type="secondary"
+          @click="treeModalCancel"
+        >
+          取消
+        </TinyButton>
+        <TinyButton @click="debounceTreeModalConfirm">移动到此处</TinyButton>
+      </div>
+    </TinyModal>
+
     <HeartBeat ref="heartBeatRef" />
   </div>
 </template>
@@ -103,22 +128,27 @@ import { useDarkMode } from "@/bookmarks/hooks/useDarkMode";
 import { useInfiniteScrollNodes } from "@/bookmarks/hooks/useInfiniteScrollNodes";
 import blackLogo from "@/assets/logo-black.svg";
 import whiteLogo from "@/assets/logo-white.svg";
-import { createNode, editNode, removeNode } from "@/bookmarks/api/bookmarks";
+import { createNode, editNode, moveNode, removeNode } from "@/bookmarks/api/bookmarks";
 import { message } from "@/components/tiny-message";
 import NodeItem from "./NodeItem.vue";
 import HeartBeat from "@/components/HeartBeat.vue";
 import TinyConfirm from "@/components/TinyConfirm.vue";
+import TinyModal from "@/components/TinyModal.vue";
+import BookmarkTree from "./BookmarkTree.vue";
+import TinyButton from "@/components/TinyButton.vue";
 
 const {
   nodes = [],
   module = "folder",
   focusNodeIds = [],
   recycleNodeIds = [],
+  routeIds = [],
 } = defineProps<{
   nodes?: Browser.bookmarks.BookmarkTreeNode[];
   module?: string;
   focusNodeIds?: string[];
   recycleNodeIds?: string[];
+  routeIds?: string[];
 }>();
 
 const emits = defineEmits<{
@@ -131,9 +161,35 @@ const heartBeatRef = useTemplateRef("heartBeatRef");
 const recycleConfirmVisible = ref(false);
 const deleteConfirmVisible = ref(false);
 const clearConfirmVisible = ref(false);
+const treeVisible = ref(false);
+
+const selectedNode = shallowRef<Browser.bookmarks.BookmarkTreeNode>();
+const debounceTreeModalConfirm = debounce(treeModalConfirm, 300);
+
+function treeModalCancel() {
+  treeVisible.value = false;
+}
+
+async function treeModalConfirm() {
+  if (!contextNode.value || !selectedNode.value) return;
+  if (selectedNode.value.id === contextNode.value.parentId) {
+    treeVisible.value = false;
+    return;
+  }
+
+  try {
+    const success = await moveNode(contextNode.value.id, { parentId: selectedNode.value.id });
+    if (success) {
+      treeVisible.value = false;
+      message.success(`已移动"${contextNode.value.title}"到"${selectedNode.value.title}"`);
+    }
+  } catch (error) {
+    message.error("移动失败");
+  }
+}
 
 // 拖拽禁用判断（focus 和 recycle 模块下禁用拖拽）
-const isDragDisabled = computed(() => ['recycle', 'focus'].includes(module));
+const isDragDisabled = computed(() => ["recycle", "focus"].includes(module));
 
 // 无限滚动
 const scrollContainer = useTemplateRef("scrollContainer");
@@ -208,6 +264,7 @@ const nodeContextMenus = computed<ContextMenuItem[]>(() => {
       { label: "打开", value: "open" },
       { label: `${!isContextNodeFocused.value ? "" : "取消"}特别关注`, value: "focus" },
       { label: "编辑", value: "edit" },
+      { label: "移动", value: "move" },
       { label: "分隔线", value: "divided", divided: true },
       { label: "放入回收站", value: "recycle", danger: true },
     ];
@@ -279,6 +336,12 @@ const contextMenuTask = {
       return;
     }
     clearConfirmVisible.value = true;
+  },
+  move: async () => {
+    if (!contextNode.value) return;
+    treeVisible.value = true;
+    const [node] = await browser.bookmarks.get(contextNode.value.parentId!);
+    selectedNode.value = node;
   },
 };
 
@@ -389,8 +452,6 @@ async function loadBookmarks() {
   // const get = await browser.bookmarks.get(["5", "6"]);
   // console.log("get", get);
 
-  // browser.bookmarks.move
-
   return;
 
   // 获取整个书签树
@@ -407,11 +468,6 @@ async function loadBookmarks() {
   // 获取最近新加的书签
   const bookmarks = await browser.bookmarks.getRecent(10);
   console.log(bookmarks);
-
-  // 监听书签变化
-  browser.bookmarks.onChanged.addListener((id, changeInfo) => {
-    console.log("Bookmark changed:", id, changeInfo);
-  });
 }
 
 loadBookmarks();
@@ -429,6 +485,7 @@ loadBookmarks();
   background-color: #999;
   border-radius: 5px;
 }
+
 .node-page-wrapper {
   height: 100%;
   overflow-y: auto;
@@ -451,5 +508,17 @@ loadBookmarks();
       display: inline-block;
     }
   }
+}
+
+.tree-modal-content {
+  height: 250px;
+  overflow: auto;
+}
+
+.tree-footer-wrapper {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 </style>

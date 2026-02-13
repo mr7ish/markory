@@ -113,7 +113,7 @@ interface BookmarkTreeNodeMoveInfo {
   oldIndex: number;
 }
 
-export function watchNode(
+export function startWatchNode(
   callback?: (
     id: string,
     {
@@ -128,23 +128,41 @@ export function watchNode(
     },
   ) => void,
 ) {
-  browser.bookmarks.onCreated.addListener((id, node) => {
+  start();
+
+  function start() {
+    browser.bookmarks.onCreated.addListener(createCallback);
+    browser.bookmarks.onChanged.addListener(changeCallback);
+    browser.bookmarks.onRemoved.addListener(removeCallback);
+    browser.bookmarks.onMoved.addListener(moveCallback);
+  }
+
+  function stop() {
+    browser.bookmarks.onCreated.removeListener(createCallback);
+    browser.bookmarks.onChanged.removeListener(changeCallback);
+    browser.bookmarks.onRemoved.removeListener(removeCallback);
+    browser.bookmarks.onMoved.removeListener(moveCallback);
+  }
+
+  function createCallback(id: string, node: Browser.bookmarks.BookmarkTreeNode) {
     console.log("watchNodeCreated", id, node);
     callback?.(id, { node });
-  });
+  }
 
-  browser.bookmarks.onChanged.addListener((id, changeInfo) => {
+  function changeCallback(id: string, changeInfo: BookmarkTreeNodeChangeInfo) {
     console.log("watchNodeChanged", id, changeInfo);
     callback?.(id, { changeInfo });
-  });
+  }
 
-  browser.bookmarks.onRemoved.addListener((id, removeInfo) => {
+  function removeCallback(id: string, removeInfo: BookmarkTreeNodeRemoveInfo) {
     console.log("watchNodeRemoved", id, removeInfo);
     callback?.(id, { removeInfo });
-  });
+  }
 
-  browser.bookmarks.onMoved.addListener((id, moveInfo) => {
+  function moveCallback(id: string, moveInfo: BookmarkTreeNodeMoveInfo) {
     console.log("watchNodeMoved", id, moveInfo);
     callback?.(id, { moveInfo });
-  });
+  }
+
+  return stop;
 }

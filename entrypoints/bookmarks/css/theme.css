@@ -32,6 +32,8 @@
   --confirm-btn-color: #ffffff;
 
   --drag-over-bg: rgba(255, 255, 255, 0.6);
+
+  --tree-node-hover-bg: rgba(0, 0, 0, 0.05);
 }
 
 :root.dark {
@@ -69,4 +71,6 @@
   --confirm-btn-color: #333333;
 
   --drag-over-bg: rgba(255, 255, 255, 0.08);
+
+  --tree-node-hover-bg: rgba(255, 255, 255, 0.05);
 }
