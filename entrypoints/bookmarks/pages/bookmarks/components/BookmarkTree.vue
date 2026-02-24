@@ -7,6 +7,7 @@
       :expanded-nodes="expandedNodes"
       :selected-node-id="selectedNode?.id"
       :context-node-id="contextNodeId"
+      :disabled="contextNodeId === node.id"
       @toggle="toggleNode"
       @select="selectNode"
     />

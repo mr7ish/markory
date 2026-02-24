@@ -4,7 +4,7 @@
       class="node-header"
       :class="{
         selected: selectedNodeId === node.id,
-        disabled: contextNodeId === node.id,
+        disabled,
       }"
       @click="selectNode(node)"
     >
@@ -50,6 +50,7 @@
         :expanded-nodes="expandedNodes"
         :selected-node-id="selectedNodeId"
         :context-node-id="contextNodeId"
+        :disabled="disabled || contextNodeId === child.id"
         @toggle="emit('toggle', $event)"
         @select="selectNode"
       />
@@ -67,6 +68,7 @@ interface Props {
   selectedNodeId?: string;
   contextNodeId?: string;
   maxHeight?: number;
+  disabled?: boolean;
 }
 
 interface Emits {
@@ -92,7 +94,7 @@ function handleToggle() {
 }
 
 function selectNode(node: Browser.bookmarks.BookmarkTreeNode) {
-  if (node.id === props.contextNodeId) return;
+  if (props.disabled) return;
   if (node.id === props.selectedNodeId) return;
   emit("select", node);
 }
