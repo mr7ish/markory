@@ -5,10 +5,10 @@
         name="logo"
         tag="div"
         class="logo-wrapper"
-        :class="{ collapsed: isCollapsed }"
+        :class="{ collapsed }"
       >
         <LogoFull
-          v-if="isCollapsed"
+          v-if="!collapsed"
           key="logo-full"
           class="logo-item logo-full"
           style="width: 80px"
@@ -22,7 +22,7 @@
       </TransitionGroup>
       <div
         class="menu-wrapper"
-        :class="{ collapsed: !isCollapsed }"
+        :class="{ collapsed }"
         :style="{
           '--menu-item-height': menuItemHeight + 'px',
           '--menu-item-gap': menuItemGap + 'px',
@@ -44,7 +44,7 @@
           />
           <div
             class="title-wrapper"
-            :class="{ collapsed: !isCollapsed }"
+            :class="{ collapsed }"
           >
             {{ menu.title }}
           </div>
@@ -59,10 +59,11 @@
     </div>
     <div
       class="footer"
-      :class="{ collapsed: !isCollapsed }"
+      :class="{ collapsed }"
     >
       <LineCheckbox
-        :value="isCollapsed"
+        :checked="!collapsed"
+        :value="collapsed"
         style="transform: scale(0.6)"
         @change="toggle"
       />
@@ -81,7 +82,7 @@ const activeKey = ref("home");
 const menuItemGap = 30;
 const menuItemHeight = 40;
 const offset = ref(0);
-const isCollapsed = useStorage("is-collapsed", false);
+const collapsed = useStorage("collapsed", false);
 
 const menus = [
   {
@@ -119,8 +120,8 @@ function menuClick(menu: (typeof menus)[0], index: number) {
   offset.value = index;
 }
 
-function toggle(_isCollapsed: boolean) {
-  isCollapsed.value = _isCollapsed;
+function toggle(_collapsed: boolean) {
+  collapsed.value = _collapsed;
 }
 </script>
 
@@ -136,19 +137,18 @@ function toggle(_isCollapsed: boolean) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 40px;
+    position: relative;
 
     .logo-wrapper {
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
-      width: 40px;
+      position: absolute;
+      width: 80px;
       height: 40px;
 
       &.collapsed {
-        width: 80px;
-        height: 40px;
+        width: 40px;
       }
     }
 
@@ -165,8 +165,8 @@ function toggle(_isCollapsed: boolean) {
     }
 
     .logo-full.logo-leave-active {
-      animation-name: zoomOutUp;
-      animation-duration: 0.75s;
+      animation-name: zoomOutLeft;
+      animation-duration: 1.75s;
       animation-fill-mode: both;
     }
 
@@ -174,7 +174,7 @@ function toggle(_isCollapsed: boolean) {
     .logo-icon.logo-enter-active {
       animation-name: zoomInLeft;
       animation-duration: 0.75s;
-      animation-delay: 0.25s;
+      animation-delay: 0.75s;
       animation-fill-mode: both;
     }
 
@@ -185,6 +185,7 @@ function toggle(_isCollapsed: boolean) {
     }
 
     .menu-wrapper {
+      margin-top: 80px;
       width: 160px;
       display: flex;
       flex-direction: column;

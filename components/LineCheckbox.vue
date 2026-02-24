@@ -4,7 +4,7 @@
     <input
       type="checkbox"
       id="checkbox"
-      :checked="value"
+      :checked="checked"
       @change="change"
     />
     <label
@@ -28,16 +28,17 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   value: boolean;
+  checked?: boolean;
 }>();
 
 const emit = defineEmits<{
   change: [value: boolean];
 }>();
 
-function change(e: Event) {
-  emit("change", (e.target as HTMLInputElement).checked);
+function change() {
+  emit("change", !props.value);
 }
 </script>
 
