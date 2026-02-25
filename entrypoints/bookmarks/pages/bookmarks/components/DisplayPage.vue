@@ -20,7 +20,7 @@
         v-model:nodes-icon-mapping="nodesIconMapping"
         v-model:favicon-load-state="faviconLoadState"
         :is-focused="focusNodeIds.includes(node.id)"
-        :disabled="module === 'recycle'"
+        :disabled="activeMenu === 'recycle'"
         :drag-disabled="isDragDisabled"
         @contextmenu.stop.prevent="
           ($event: MouseEvent) => {
@@ -119,7 +119,6 @@
 <script setup lang="ts">
 import { generateFavicons } from "@/utils";
 import EmptyWrapper from "@/components/EmptyWrapper.vue";
-import { useRoute, useRouter } from "vue-router";
 import ContextMenu from "@/components/context-menu/index.vue";
 import { useContextMenu } from "@/components/context-menu/hooks/useContextMenu";
 import { ContextMenuItem } from "@/components/context-menu";
@@ -136,16 +135,17 @@ import TinyConfirm from "@/components/TinyConfirm.vue";
 import TinyModal from "@/components/TinyModal.vue";
 import BookmarkTree from "./BookmarkTree.vue";
 import TinyButton from "@/components/TinyButton.vue";
+import { useRoutesStore } from "@/bookmarks/store/routes";
+import { storeToRefs } from "pinia";
+import { useRecycleStore } from "@/bookmarks/store/recycle";
 
 const {
   nodes = [],
-  module = "folder",
   focusNodeIds = [],
   recycleNodeIds = [],
   routeIds = [],
 } = defineProps<{
   nodes?: Browser.bookmarks.BookmarkTreeNode[];
-  module?: string;
   focusNodeIds?: string[];
   recycleNodeIds?: string[];
   routeIds?: string[];
@@ -155,6 +155,12 @@ const emits = defineEmits<{
   focus: [node: Browser.bookmarks.BookmarkTreeNode];
   recycle: [node: Browser.bookmarks.BookmarkTreeNode];
 }>();
+
+const routesStore = useRoutesStore();
+const { setRoutes } = routesStore;
+const { activeMenu, routes, queryId } = storeToRefs(routesStore);
+
+const { getSubIds, setRemoveNodeIds } = useRecycleStore();
 
 const heartBeatRef = useTemplateRef("heartBeatRef");
 
@@ -189,7 +195,7 @@ async function treeModalConfirm() {
 }
 
 // 拖拽禁用判断（focus 和 recycle 模块下禁用拖拽）
-const isDragDisabled = computed(() => ["recycle", "focus"].includes(module));
+const isDragDisabled = computed(() => ["recycle", "focus"].includes(activeMenu.value));
 
 // 无限滚动
 const scrollContainer = useTemplateRef("scrollContainer");
@@ -200,6 +206,10 @@ const { displayedItems: displayedNodes, hasMore } = useInfiniteScrollNodes(
 
 async function clearConfirm() {
   if (recycleNodeIds.length === 0) return;
+
+  const removeIds = await getSubIds(recycleNodeIds);
+  setRemoveNodeIds(removeIds);
+
   await Promise.all(recycleNodeIds.map((i) => removeNode(i)));
   message.success("清空成功");
   clearConfirmVisible.value = false;
@@ -207,6 +217,10 @@ async function clearConfirm() {
 
 async function deleteConfirm() {
   if (!contextNode.value) return;
+
+  const removeIds = await getSubIds([contextNode.value.id]);
+  setRemoveNodeIds(removeIds);
+
   const success = await removeNode(contextNode.value.id);
   if (success) {
     message.success("删除成功");
@@ -226,9 +240,6 @@ watchEffect(() => {
 
 const { isDarkMode } = useDarkMode();
 
-const router = useRouter();
-const route = useRoute();
-
 const systemIcon = computed(() => (isDarkMode.value ? whiteLogo : blackLogo));
 
 const createModalVisible = ref(false);
@@ -244,14 +255,14 @@ const isContextNodeFocused = computed(() => {
 });
 
 const pageContextMenus = computed<ContextMenuItem[]>(() => {
-  if (module === "folder") {
+  if (activeMenu.value === "folder") {
     return [
       { label: "新建文件夹", value: "create" },
       { label: "新建书签", value: "create" },
     ];
   }
 
-  if (module === "recycle") {
+  if (activeMenu.value === "recycle") {
     return [{ label: "清空回收站", value: "clear", danger: true }];
   }
 
@@ -259,7 +270,7 @@ const pageContextMenus = computed<ContextMenuItem[]>(() => {
 });
 
 const nodeContextMenus = computed<ContextMenuItem[]>(() => {
-  if (["folder", "focus"].includes(module)) {
+  if (["folder", "focus"].includes(activeMenu.value)) {
     return [
       { label: "打开", value: "open" },
       { label: `${!isContextNodeFocused.value ? "" : "取消"}特别关注`, value: "focus" },
@@ -270,7 +281,7 @@ const nodeContextMenus = computed<ContextMenuItem[]>(() => {
     ];
   }
 
-  if (module === "recycle") {
+  if (activeMenu.value === "recycle") {
     return [
       { label: "放回", value: "recycle" },
       { label: "删除", value: "delete", danger: true },
@@ -289,13 +300,13 @@ const contextMenuTask = {
   open: () => {
     if (!contextNode.value) return;
     if (!contextNode.value.url) {
-      router.push({
-        name: "bookmarks",
-        query: {
+      setRoutes([
+        ...routes.value,
+        {
           id: contextNode.value.id,
           title: contextNode.value.title,
         },
-      });
+      ]);
       return;
     }
 
@@ -360,7 +371,7 @@ async function getValues(values: FormValues) {
   const { folderName, bookmarkName, bookmarkUrl } = values;
 
   if (!isEdit.value) {
-    const parentId = route.query.id === "folder" ? undefined : (route.query.id as string);
+    const parentId = queryId.value === "folder" ? undefined : queryId.value;
 
     const node = await createNode({
       title: !bookmarkUrl ? folderName : bookmarkName,

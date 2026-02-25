@@ -95,6 +95,14 @@ export async function moveNode(id: string, destination: { parentId?: string; ind
   }
 }
 
+/**
+ * 搜索书签
+ */
+export async function searchNode(query: string) {
+  const nodes = await browser.bookmarks.search(query);
+  return nodes;
+}
+
 interface BookmarkTreeNodeChangeInfo {
   title: string;
   url?: string | undefined;

@@ -95,12 +95,13 @@
 <script setup lang="ts">
 import { useClickWithDbl } from "@/bookmarks/hooks/useClickWithDbl";
 import IconTag from "@/components/IconTag.vue";
-import { useRouter } from "vue-router";
 import IconUndefined from "./IconUndefined.vue";
 import { DateFormat, formatTimestamp } from "@/utils";
 import { computed, ref, watch } from "vue";
 import { moveNode } from "@/bookmarks/api/bookmarks";
 import { message } from "@/components/tiny-message";
+import { useRoutesStore } from "@/bookmarks/store/routes";
+import { storeToRefs } from "pinia";
 
 const props = defineProps<{
   node: Browser.bookmarks.BookmarkTreeNode;
@@ -117,6 +118,10 @@ const emits = defineEmits<{
   dragStart: [node: Browser.bookmarks.BookmarkTreeNode, event: DragEvent];
   dragEnd: [event: DragEvent];
 }>();
+
+const routesStore = useRoutesStore();
+const { setRoutes } = routesStore;
+const { routes } = storeToRefs(routesStore);
 
 const isExiting = ref(false);
 const heartVisible = computed(() => !!props.isFocused || isExiting.value);
@@ -138,8 +143,6 @@ function onHeartAnimationEnd(evt: AnimationEvent) {
     isExiting.value = false;
   }
 }
-
-const router = useRouter();
 
 const { onClick: onNodeClick, onDblClick: onNodeDblClick } =
   useClickWithDbl<Browser.bookmarks.BookmarkTreeNode>({
@@ -315,13 +318,13 @@ function clickNode(node: Browser.bookmarks.BookmarkTreeNode) {
 
 function dbClick(node: Browser.bookmarks.BookmarkTreeNode) {
   if (!node.url) {
-    router.push({
-      name: "bookmarks",
-      query: {
+    setRoutes([
+      ...routes.value,
+      {
         id: node.id,
         title: node.title,
       },
-    });
+    ]);
     return;
   }
 

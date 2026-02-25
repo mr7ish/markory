@@ -28,31 +28,14 @@
 
 <script setup lang="ts">
 import IconTag from "@/components/IconTag.vue";
-import { useRoute, useRouter } from "vue-router";
 import { message } from "@/components/tiny-message";
 import { moveNode } from "@/bookmarks/api/bookmarks";
+import { BreadCrumbRoute, useRoutesStore } from "@/bookmarks/store/routes";
+import { storeToRefs } from "pinia";
 
-export interface BreadCrumbRoute {
-  title: string;
-  id: string;
-}
-
-const { routes = [], menus = [] } = defineProps<{
-  routes?: BreadCrumbRoute[];
-  menus?: {
-    title: string;
-    id: string;
-    icon: string;
-    activeIcon: string;
-  }[];
-}>();
-
-const emits = defineEmits<{
-  setRoutes: [routes: BreadCrumbRoute[]];
-}>();
-
-const route = useRoute();
-const router = useRouter();
+const routesStore = useRoutesStore();
+const { menus, setRoutes } = routesStore;
+const { routes, queryId } = storeToRefs(routesStore);
 
 const DRAG_DATA_KEY = "application/vnd.markory.bookmark-node";
 const dragOverFolderId = ref<string | null>(null);
@@ -60,7 +43,7 @@ const dragDisabledFolderId = ref<string | null>(null);
 
 // 检查是否启用拖拽（focus 和 recycle 模块下禁用）
 const isDragEnabled = computed(() => {
-  const currentId = route.query.id as string;
+  const currentId = queryId.value;
   return !["focus", "recycle"].includes(currentId);
 });
 
@@ -98,7 +81,7 @@ function isDropDisabled(folderId: string, dragNodeId: string | null) {
   if (dragNodeId === folderId) return true;
 
   // 禁止拖拽到当前文件夹
-  const currentFolderId = route.query.id as string;
+  const currentFolderId = queryId.value;
   if (folderId === currentFolderId) return true;
 
   // 根文件夹的特殊处理
@@ -106,7 +89,7 @@ function isDropDisabled(folderId: string, dragNodeId: string | null) {
   if (isRootFolder) {
     // 如果当前在根文件夹路径下，则禁止拖拽回根文件夹
     const isInRootPath =
-      routes.length === 1 && ["folder", "focus", "recycle"].includes(routes[0]?.id);
+      routes.value.length === 1 && ["folder", "focus", "recycle"].includes(routes.value[0]?.id);
     if (isInRootPath) return true;
   }
 
@@ -210,7 +193,7 @@ async function handleDrop(folderId: string, e: DragEvent) {
     const success = await moveNode(dragData.nodeId, { parentId: targetFolderId });
     if (success) {
       // 获取目标文件夹名称
-      const targetFolder = routes.find((r: BreadCrumbRoute) => r.id === folderId);
+      const targetFolder = routes.value.find((r: BreadCrumbRoute) => r.id === folderId);
       const targetName = targetFolder?.title ?? "此文件夹";
       message.success(`已移动"${dragData.nodeTitle}"到"${targetName}"`);
     }
@@ -219,58 +202,35 @@ async function handleDrop(folderId: string, e: DragEvent) {
   }
 }
 
-watch(
-  () => route.query,
-  (query) => {
-    // console.log("breadcrumb => ", query);
-    if (!!query.isInit) return;
+function jumpTo(route: BreadCrumbRoute) {
+  let _routes: BreadCrumbRoute[] = [];
 
-    if (isNaN(Number(query.id))) {
-      const target = menus.find((i) => i.id === query.id);
-      emits(
-        "setRoutes",
-        target
-          ? [target].map((i) => ({
-              id: i.id,
-              title: i.title,
-            }))
-          : [],
-      );
-      return;
-    }
+  if (isNaN(Number(route.id))) {
+    const target = menus.find((i) => i.id === route.id);
 
-    const index = routes.findIndex((i) => i.id === query.id);
-
-    if (index !== -1) {
-      const _routes = routes.slice(0, index + 1);
-      emits("setRoutes", _routes);
-      return;
-    }
-
-    const _routes = [
-      ...routes,
-      {
-        id: query.id as string,
-        title: query.title as string,
-      },
-    ];
-
-    emits("setRoutes", _routes);
-  },
-);
-
-function jumpTo(route: { id: string; title: string }) {
-  if (routes.length === 0) {
-    return;
+    _routes = !target
+      ? []
+      : [target].map((i) => ({
+          id: i.id,
+          title: i.title,
+        }));
   }
 
-  router.push({
-    name: "bookmarks",
-    query: {
-      id: route.id,
-      title: route.title,
-    },
-  });
+  const index = routes.value.findIndex((i) => i.id === route.id);
+
+  if (index !== -1) {
+    _routes = routes.value.slice(0, index + 1);
+  } else {
+    _routes = [
+      ...routes.value,
+      {
+        id: route.id,
+        title: route.title,
+      },
+    ];
+  }
+
+  setRoutes(_routes);
 }
 </script>
 

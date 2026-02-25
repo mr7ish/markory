@@ -1,15 +1,20 @@
 import { fetchAllNodes, fetchNodeChildrenById } from "@/entrypoints/bookmarks/api/bookmarks";
-import { useRoute } from "vue-router";
+import { useRoutesStore } from "../store/routes";
+import { storeToRefs } from "pinia";
 
 export function useBookmarkNodesQuery() {
-  const route = useRoute();
   const nodes = shallowRef<Browser.bookmarks.BookmarkTreeNode[]>([]);
 
+  const routesStore = useRoutesStore();
+  const { routes } = storeToRefs(routesStore);
+
   watch(
-    () => route.query.id,
-    (id) => {
-      console.log("useBookmarkNodesQuery => ", id);
-      if (!id) return;
+    routes,
+    (_routes) => {
+      console.log("useBookmarkNodesQuery => ", _routes);
+      if (_routes.length === 0) return;
+
+      const id = _routes[_routes.length - 1].id;
 
       if (id === "folder") {
         fetchTopNodes();
@@ -31,6 +36,7 @@ export function useBookmarkNodesQuery() {
   }
 
   async function fetchChildrenNodes(id: string) {
+    if (!id) return;
     const _nodes = await fetchNodeChildrenById(id);
     console.log("_nodes => ", _nodes);
     nodes.value = _nodes;

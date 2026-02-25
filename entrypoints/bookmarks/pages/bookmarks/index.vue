@@ -1,14 +1,9 @@
 <template>
   <div class="bookmark-layout-wrapper">
-    <BreadCrumb
-      :routes="routes"
-      :menus="menus"
-      @set-routes="setRoutes"
-    />
+    <BreadCrumb />
     <div class="bookmark-content-wrapper">
       <DisplayPage
         :nodes="showNodes"
-        :module="activeMenu"
         :focus-node-ids="focusNodeIds"
         :recycle-node-ids="recycleNodeIds"
         :route-ids="routes.slice(1).map((i) => i.id)"
@@ -16,99 +11,38 @@
         @recycle="recycle"
       />
     </div>
-    <MenuIsland
-      :active-menu="activeMenu"
-      :menus="menus"
-      @change="setActiveMenu"
-    />
+    <MenuIsland />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useBookmarkNodesQuery } from "@/bookmarks/queries/bookmarks";
-import BreadCrumb, { BreadCrumbRoute } from "./components/BreadCrumb.vue";
+import BreadCrumb from "./components/BreadCrumb.vue";
 import DisplayPage from "./components/DisplayPage.vue";
 import { removeNode, startWatchNode } from "@/bookmarks/api/bookmarks";
-import { useRoute, useRouter } from "vue-router";
 import { useIDBKeyval } from "@vueuse/integrations/useIDBKeyval";
 import MenuIsland from "./components/MenuIsland.vue";
 import { watchOnce } from "@vueuse/core";
+import { useSearchStore } from "@/bookmarks/store/search";
+import { useRoutesStore } from "@/bookmarks/store/routes";
+import { storeToRefs } from "pinia";
+import { useRecycleStore } from "@/bookmarks/store/recycle";
 
-const router = useRouter();
-const route = useRoute();
+const routesStore = useRoutesStore();
+const { activeMenu, routes, queryId } = storeToRefs(routesStore);
 
-const menus = [
-  {
-    title: "全部文件夹",
-    id: "folder",
-    icon: "basil:folder-open-outline",
-    activeIcon: "basil:folder-open-solid",
-  },
-  {
-    title: "特别关注",
-    id: "focus",
-    icon: "si:heart-line",
-    activeIcon: "si:heart-fill",
-  },
-  {
-    title: "回收站",
-    id: "recycle",
-    icon: "basil:trash-outline",
-    activeIcon: "basil:trash-solid",
-    // icon: "flowbite:trash-bin-outline",
-    // activeIcon: "flowbite:trash-bin-solid",
-  },
-];
-
-const activeMenu = ref(menus[0].id);
-
-function setActiveMenu(id: string) {
-  activeMenu.value = id;
-}
-
+const recycleStore = useRecycleStore();
+const { setRecycleNodes, setRemoveNodeIds } = recycleStore;
 const {
-  data: routes,
-  set: setRoutes,
-  isFinished: isRoutesFinished,
-} = useIDBKeyval<BreadCrumbRoute[]>("bread-crumb-routes", [], {
-  shallow: true,
-});
+  recycleNodes,
+  recycleNodeIds,
+  allRecycleNodeIds,
+  allRemoveNodeIds,
+  isRecycleNodesFinished,
+} = storeToRefs(recycleStore);
 
-watchOnce(isRoutesFinished, (isFinished) => {
-  if (!isFinished) return;
-
-  if (routes.value.length > 1 || routes.value.length === 1) {
-    setActiveMenu(routes.value[0].id);
-
-    const lastRoute = routes.value[routes.value.length - 1];
-    router.replace({
-      name: "bookmarks",
-      query: {
-        id: lastRoute.id,
-        title: lastRoute.title,
-        isInit: 1,
-      },
-    });
-
-    return;
-  }
-
-  setRoutes([
-    {
-      id: menus[0].id,
-      title: menus[0].title,
-    },
-  ]);
-
-  router.replace({
-    name: "bookmarks",
-    query: {
-      id: menus[0].id,
-      title: menus[0].title,
-      isInit: 1,
-    },
-  });
-});
+const searchStore = useSearchStore();
+const { setTree } = searchStore;
 
 const { nodes, fetchTopNodes, fetchChildrenNodes } = useBookmarkNodesQuery();
 
@@ -121,19 +55,6 @@ const { data: focusNodes, set: setFocusNodes } = useIDBKeyval<Browser.bookmarks.
 );
 
 const focusNodeIds = computed(() => focusNodes.value.map((i) => i.id));
-
-const {
-  data: recycleNodes,
-  set: setRecycleNodes,
-  isFinished: isRecycleNodesFinished,
-} = useIDBKeyval<
-  {
-    timestamp: number;
-    node: Browser.bookmarks.BookmarkTreeNode;
-  }[]
->("recycle-nodes", [], {
-  shallow: true,
-});
 
 watchOnce(isRecycleNodesFinished, removeExpiredRecycleNodes);
 
@@ -155,15 +76,13 @@ async function removeExpiredRecycleNodes() {
   await Promise.all(expiredIds.map((i) => removeNode(i)));
 }
 
-const recycleNodeIds = computed(() => recycleNodes.value.map((i) => i.node.id));
-
 const showNodes = computed(() => {
-  if (activeMenu.value === "folder" || !isNaN(Number(route.query.id))) {
-    return nodes.value.filter((i) => !recycleNodes.value.map((j) => j.node.id).includes(i.id));
+  if (activeMenu.value === "folder" || !isNaN(Number(queryId.value))) {
+    return nodes.value.filter((i) => !recycleNodeIds.value.includes(i.id));
   }
 
   if (activeMenu.value === "focus") {
-    return focusNodes.value.filter((i) => !recycleNodes.value.map((j) => j.node.id).includes(i.id));
+    return focusNodes.value.filter((i) => !allRecycleNodeIds.value.includes(i.id));
   }
 
   if (activeMenu.value === "recycle") {
@@ -197,25 +116,15 @@ function recycle(node: Browser.bookmarks.BookmarkTreeNode) {
   setRecycleNodes(recycleNodes.value.filter((i) => i.node.id !== node.id));
 }
 
-watchEffect(() => {
-  console.log("showNodes => ", showNodes.value);
-});
-
 const pendingDeleteIds = ref<string[]>([]);
 let deleteTimer: ReturnType<typeof setTimeout> | null = null;
 
-function flushPendingDeletes() {
+async function flushPendingDeletes() {
   if (pendingDeleteIds.value.length > 0) {
-    const deleteIds = new Set(pendingDeleteIds.value);
-    setRecycleNodes(
-      recycleNodes.value.filter(
-        (i) => !deleteIds.has(i.node.id) && !deleteIds.has(i.node.parentId!),
-      ),
-    );
-    setFocusNodes(
-      focusNodes.value.filter((i) => !deleteIds.has(i.id) && !deleteIds.has(i.parentId!)),
-    );
+    setRecycleNodes(recycleNodes.value.filter((i) => !allRecycleNodeIds.value.includes(i.node.id)));
+    setFocusNodes(focusNodes.value.filter((i) => !allRemoveNodeIds.value.includes(i.id)));
     pendingDeleteIds.value = [];
+    setRemoveNodeIds([]);
   }
 
   deleteTimer = null;
@@ -223,6 +132,8 @@ function flushPendingDeletes() {
 
 const stop = startWatchNode((id: string, { removeInfo }) => {
   console.log("watching Node => ", id);
+
+  setTree();
 
   if (removeInfo) {
     pendingDeleteIds.value.push(id);
@@ -233,16 +144,14 @@ const stop = startWatchNode((id: string, { removeInfo }) => {
     deleteTimer = setTimeout(flushPendingDeletes, 500);
   }
 
-  const queryId = route.query.id as string;
-
-  if (queryId === "folder") {
+  if (queryId.value === "folder") {
     fetchTopNodes();
     return;
   }
 
-  if (isNaN(Number(queryId))) return;
+  if (isNaN(Number(queryId.value))) return;
 
-  fetchChildrenNodes(queryId);
+  fetchChildrenNodes(queryId.value);
 });
 
 onUnmounted(stop);

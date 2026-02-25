@@ -28,37 +28,25 @@
 </template>
 
 <script setup lang="ts">
+import { useRoutesStore } from "@/bookmarks/store/routes";
 import IconTag from "@/components/IconTag.vue";
-import { useRouter } from "vue-router";
+import { storeToRefs } from "pinia";
 
-const { activeMenu, menus = [] } = defineProps<{
-  activeMenu: string;
-  menus?: {
-    title: string;
-    id: string;
-    icon: string;
-    activeIcon: string;
-  }[];
-}>();
+const routesStore = useRoutesStore();
+const { menus, setActiveMenu, setRoutes } = routesStore;
+const { activeMenu } = storeToRefs(routesStore);
 
-const emits = defineEmits<{
-  change: [value: string];
-}>();
-
-const router = useRouter();
-
-const offset = computed(() => menus.findIndex((menu) => menu.id === activeMenu));
+const offset = computed(() => menus.findIndex((menu) => menu.id === activeMenu.value));
 
 function clickMenu(menu: (typeof menus)[0]) {
-  emits("change", menu.id);
+  setActiveMenu(menu.id);
 
-  router.push({
-    name: "bookmarks",
-    query: {
+  setRoutes([
+    {
       id: menu.id,
       title: menu.title,
     },
-  });
+  ]);
 }
 </script>
 

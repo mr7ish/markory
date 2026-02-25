@@ -10,9 +10,6 @@ const router = createRouter({
       redirect: () => {
         return {
           name: "bookmarks",
-          // query: {
-          //   id: "folder",
-          // },
         };
       },
       children: [
@@ -20,6 +17,11 @@ const router = createRouter({
           path: "bookmarks",
           name: "bookmarks",
           component: () => import("@/bookmarks/pages/bookmarks/index.vue"),
+        },
+        {
+          path: "settings",
+          name: "settings",
+          component: () => import("@/bookmarks/pages/settings/index.vue"),
         },
       ],
     },
