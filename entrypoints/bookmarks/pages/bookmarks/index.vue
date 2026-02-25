@@ -93,6 +93,13 @@ watchOnce(isRoutesFinished, (isFinished) => {
     return;
   }
 
+  setRoutes([
+    {
+      id: menus[0].id,
+      title: menus[0].title,
+    },
+  ]);
+
   router.replace({
     name: "bookmarks",
     query: {
