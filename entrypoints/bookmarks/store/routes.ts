@@ -40,14 +40,22 @@ export const useRoutesStore = defineStore("routesStore", () => {
   });
 
   const queryId = computed(() => {
-    return routes.value.length > 0 ? routes.value[routes.value.length - 1].id : "";
+    return routes.value.length > 0 ? routes.value[routes.value.length - 1].id : "folder";
   });
 
   const activeMenu = ref(menus[0].id);
 
   watchOnce(isRoutesFinished, (isFinished) => {
     if (!isFinished) return;
-    if (routes.value.length === 0) return;
+    if (routes.value.length === 0) {
+      setRoutes([
+        {
+          title: menus[0].title,
+          id: menus[0].id,
+        },
+      ]);
+      return;
+    }
     setActiveMenu(routes.value[0].id);
   });
 

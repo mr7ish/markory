@@ -203,6 +203,8 @@ async function handleDrop(folderId: string, e: DragEvent) {
 }
 
 function jumpTo(route: BreadCrumbRoute) {
+  if (route.id === queryId.value) return;
+
   let _routes: BreadCrumbRoute[] = [];
 
   if (isNaN(Number(route.id))) {
