@@ -1,4 +1,5 @@
 import { message } from "@/components/tiny-message";
+import moment from "moment";
 
 /**
  * 获取书签栏和其他书签下的所有一级文件夹和书签
@@ -24,6 +25,10 @@ export async function fetchNodeChildrenById(id: string) {
 function processUrl(url?: string) {
   if (!url) {
     return "";
+  }
+
+  if (url.startsWith("chrome://")) {
+    return url;
   }
 
   if (!url.startsWith("http")) {
@@ -101,6 +106,33 @@ export async function moveNode(id: string, destination: { parentId?: string; ind
 export async function searchNode(query: string) {
   const nodes = await browser.bookmarks.search(query);
   return nodes;
+}
+
+/**
+ * 打包标签页到新文件夹
+ */
+export async function groupTabs(tabs: Browser.tabs.Tab[], folderName = "") {
+  const folder = await createNode({
+    title: !folderName ? moment().format("YYYY-MM-DD HH:mm:ss") : folderName,
+  });
+
+  if (!folder) {
+    return null;
+  }
+
+  await Promise.allSettled(
+    tabs
+      .filter((tab) => !!tab.url && !!tab.title && tab.url !== "chrome://bookmarks/")
+      .map((tab) =>
+        createNode({
+          parentId: folder.id,
+          title: tab.title,
+          url: tab.url,
+        }),
+      ),
+  );
+
+  return folder;
 }
 
 interface BookmarkTreeNodeChangeInfo {
