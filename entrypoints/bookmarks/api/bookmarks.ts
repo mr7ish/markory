@@ -111,28 +111,40 @@ export async function searchNode(query: string) {
 /**
  * 打包标签页到新文件夹
  */
-export async function groupTabs(tabs: Browser.tabs.Tab[], folderName = "") {
-  const folder = await createNode({
-    title: !folderName ? moment().format("YYYY-MM-DD HH:mm:ss") : folderName,
+export async function groupTabs(groupId?: string) {
+  const tabs = await browser.tabs.query({
+    currentWindow: true,
   });
 
-  if (!folder) {
-    return null;
+  let parentId = groupId;
+
+  if (!groupId) {
+    const node = await createNode({
+      parentId: "1",
+      title: moment().format("YYYY-MM-DD HH:mm:ss"),
+    });
+
+    parentId = node?.id;
   }
 
-  await Promise.allSettled(
-    tabs
-      .filter((tab) => !!tab.url && !!tab.title && tab.url !== "chrome://bookmarks/")
-      .map((tab) =>
-        createNode({
-          parentId: folder.id,
-          title: tab.title,
-          url: tab.url,
-        }),
-      ),
-  );
+  try {
+    await Promise.allSettled(
+      tabs
+        .filter((tab) => !!tab.url && !!tab.title && tab.url !== "chrome://bookmarks/")
+        .map((tab) =>
+          createNode({
+            parentId,
+            title: tab.title,
+            url: tab.url,
+          }),
+        ),
+    );
 
-  return folder;
+    return true;
+  } catch (err) {
+    message.error("打包标签页失败: " + err);
+    return false;
+  }
 }
 
 interface BookmarkTreeNodeChangeInfo {

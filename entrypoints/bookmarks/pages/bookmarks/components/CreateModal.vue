@@ -6,7 +6,13 @@
     destroyOnClose
   >
     <template #header>
-      {{ isFolderNode ? `${isEdit ? "编辑" : "新建"}文件夹` : `${isEdit ? "编辑" : "新建"}书签` }}
+      {{
+        isGroup
+          ? "新建分组"
+          : isFolderNode
+            ? `${isEdit ? "编辑" : "新建"}文件夹`
+            : `${isEdit ? "编辑" : "新建"}书签`
+      }}
     </template>
     <div>
       <div class="icon-wrapper">
@@ -22,7 +28,7 @@
         />
       </div>
 
-      <template v-if="isFolderNode">
+      <template v-if="isFolderNode || isGroup">
         <TinyInput
           v-model.trim="modelValues.folderName"
           placeholder="文件夹名称"
@@ -66,10 +72,12 @@ export type FormValues = typeof modelValues;
 const {
   isFolderNode = true,
   isEdit = false,
+  isGroup = false,
   node,
 } = defineProps<{
   isFolderNode?: boolean;
   isEdit?: boolean;
+  isGroup?: boolean;
   node?: Browser.bookmarks.BookmarkTreeNode;
 }>();
 
@@ -87,6 +95,20 @@ const modelValues = reactive({
   bookmarkName: "",
   bookmarkUrl: "",
 });
+
+async function initGroupName() {
+  const res = await browser.bookmarks.search({
+    query: "分组",
+  });
+
+  if (res.length > 0) {
+    const titles = res.map((i) => i.title);
+    const maxNum = Math.max(...titles.map((i) => Number(i.replace("分组", ""))));
+    modelValues.folderName = `分组${maxNum + 1}`;
+    return;
+  }
+  modelValues.folderName = "分组1";
+}
 
 function cancel() {
   emits("cancel");
@@ -127,6 +149,11 @@ watch(
     if (!_visible) {
       reset();
     } else {
+      if (isGroup) {
+        initGroupName();
+        return;
+      }
+
       if (isEdit && node) {
         modelValues.folderName = node.title;
         modelValues.bookmarkName = node.title;

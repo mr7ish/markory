@@ -51,6 +51,7 @@
       v-model="createModalVisible"
       :isFolderNode="isFolderNode"
       :is-edit="isEdit"
+      :is-group="isGroup"
       :node="contextNode"
       @confirm="getValues"
     />
@@ -127,7 +128,7 @@ import { useDarkMode } from "@/bookmarks/hooks/useDarkMode";
 import { useInfiniteScrollNodes } from "@/bookmarks/hooks/useInfiniteScrollNodes";
 import blackLogo from "@/assets/logo-black.svg";
 import whiteLogo from "@/assets/logo-white.svg";
-import { createNode, editNode, moveNode, removeNode } from "@/bookmarks/api/bookmarks";
+import { createNode, editNode, groupTabs, moveNode, removeNode } from "@/bookmarks/api/bookmarks";
 import { message } from "@/components/tiny-message";
 import NodeItem from "./NodeItem.vue";
 import HeartBeat from "@/components/HeartBeat.vue";
@@ -245,6 +246,7 @@ const systemIcon = computed(() => (isDarkMode.value ? whiteLogo : blackLogo));
 const createModalVisible = ref(false);
 const isFolderNode = ref(true);
 const isEdit = ref(false);
+const isGroup = ref(false);
 
 const { x, y, visible, menus, openContextMenu } = useContextMenu();
 
@@ -259,6 +261,7 @@ const pageContextMenus = computed<ContextMenuItem[]>(() => {
     return [
       { label: "新建文件夹", value: "create" },
       { label: "新建书签", value: "create" },
+      { label: "打包当前窗口所有标签页", value: "group" },
     ];
   }
 
@@ -295,6 +298,11 @@ const contextMenuTask = {
   create: (item: ContextMenuItem) => {
     isFolderNode.value = item.label === "新建文件夹";
     isEdit.value = false;
+    isGroup.value = false;
+    createModalVisible.value = true;
+  },
+  group: () => {
+    isGroup.value = true;
     createModalVisible.value = true;
   },
   open: () => {
@@ -316,6 +324,7 @@ const contextMenuTask = {
     if (!contextNode.value) return;
     isFolderNode.value = !contextNode.value.url;
     isEdit.value = true;
+    isGroup.value = false;
     createModalVisible.value = true;
   },
   focus: () => {
@@ -380,6 +389,14 @@ async function getValues(values: FormValues) {
     });
 
     if (!node) return;
+
+    if (isGroup.value) {
+      const success = await groupTabs(node.id);
+      if (!success) return;
+      createModalVisible.value = false;
+      message.success("打包成功");
+      return;
+    }
 
     message.success("创建成功");
   } else {

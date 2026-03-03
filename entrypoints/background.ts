@@ -20,13 +20,9 @@ export default defineBackground(() => {
     });
   });
 
-  browser.contextMenus.onClicked.addListener(async (info, _tab) => {
+  browser.contextMenus.onClicked.addListener((info, _tab) => {
     if (info.menuItemId === "group-tabs") {
-      const tabs = await browser.tabs.query({
-        currentWindow: true,
-      });
-
-      await groupTabs(tabs);
+      groupTabs();
     }
   });
 });
