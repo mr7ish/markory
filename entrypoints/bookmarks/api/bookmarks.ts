@@ -1,5 +1,4 @@
 import { message } from "@/components/tiny-message";
-import moment from "moment";
 
 /**
  * 获取书签栏和其他书签下的所有一级文件夹和书签
@@ -108,6 +107,19 @@ export async function searchNode(query: string) {
   return nodes;
 }
 
+export async function initGroupName() {
+  const res = await browser.bookmarks.search({
+    query: "分组",
+  });
+
+  if (res.length > 0) {
+    const titles = res.map((i) => i.title);
+    const maxNum = Math.max(...titles.map((i) => Number(i.replace("分组", ""))));
+    return `分组${maxNum + 1}`;
+  }
+  return "分组1";
+}
+
 /**
  * 打包标签页到新文件夹
  */
@@ -119,9 +131,11 @@ export async function groupTabs(groupId?: string) {
   let parentId = groupId;
 
   if (!groupId) {
+    const title = await initGroupName();
+
     const node = await createNode({
       parentId: "1",
-      title: moment().format("YYYY-MM-DD HH:mm:ss"),
+      title,
     });
 
     parentId = node?.id;
@@ -145,6 +159,32 @@ export async function groupTabs(groupId?: string) {
     message.error("打包标签页失败: " + err);
     return false;
   }
+}
+
+/**
+ * 分组打开多个标签页
+ */
+export async function openGroupedTabs(urls: string[], groupTitle: string) {
+  const tabIds = [];
+
+  for (const url of urls) {
+    const tab = await browser.tabs.create({
+      url,
+      active: false,
+    });
+
+    tabIds.push(tab.id);
+
+    await new Promise((r) => setTimeout(r, 100));
+  }
+
+  const groupId = await browser.tabs.group({
+    tabIds: tabIds.filter((i) => i !== undefined) as [number, ...number[]],
+  });
+
+  await browser.tabGroups.update(groupId, {
+    title: groupTitle,
+  });
 }
 
 interface BookmarkTreeNodeChangeInfo {

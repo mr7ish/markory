@@ -4,7 +4,7 @@ import { defineConfig } from "wxt";
 export default defineConfig({
   modules: ["@wxt-dev/module-vue"],
   manifest: {
-    permissions: ["bookmarks", "tabs", "history", "storage", "contextMenus"],
+    permissions: ["bookmarks", "tabs", "tabGroups", "history", "storage", "contextMenus"],
   },
   alias: {
     "@/bookmarks": "./entrypoints/bookmarks",

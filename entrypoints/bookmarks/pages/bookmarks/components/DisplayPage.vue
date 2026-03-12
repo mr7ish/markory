@@ -128,7 +128,15 @@ import { useDarkMode } from "@/bookmarks/hooks/useDarkMode";
 import { useInfiniteScrollNodes } from "@/bookmarks/hooks/useInfiniteScrollNodes";
 import blackLogo from "@/assets/logo-black.svg";
 import whiteLogo from "@/assets/logo-white.svg";
-import { createNode, editNode, groupTabs, moveNode, removeNode } from "@/bookmarks/api/bookmarks";
+import {
+  createNode,
+  editNode,
+  fetchNodeChildrenById,
+  groupTabs,
+  moveNode,
+  openGroupedTabs,
+  removeNode,
+} from "@/bookmarks/api/bookmarks";
 import { message } from "@/components/tiny-message";
 import NodeItem from "./NodeItem.vue";
 import HeartBeat from "@/components/HeartBeat.vue";
@@ -276,12 +284,13 @@ const nodeContextMenus = computed<ContextMenuItem[]>(() => {
   if (["folder", "focus"].includes(activeMenu.value)) {
     return [
       { label: "打开", value: "open" },
+      { label: "分组打开所有书签", value: !contextNode.value?.url ? "openAllByGroup" : "" },
       { label: `${!isContextNodeFocused.value ? "" : "取消"}特别关注`, value: "focus" },
       { label: "编辑", value: "edit" },
       { label: "移动", value: "move" },
       { label: "分隔线", value: "divided", divided: true },
       { label: "放入回收站", value: "recycle", danger: true },
-    ];
+    ].filter((i) => i.value);
   }
 
   if (activeMenu.value === "recycle") {
@@ -362,6 +371,15 @@ const contextMenuTask = {
     treeVisible.value = true;
     const [node] = await browser.bookmarks.get(contextNode.value.parentId!);
     selectedNode.value = node;
+  },
+  openAllByGroup: async () => {
+    if (!contextNode.value) return;
+    const nodes = (await fetchNodeChildrenById(contextNode.value.id)).filter((node) => node.url);
+
+    openGroupedTabs(
+      nodes.map((node) => node.url!),
+      contextNode.value.title,
+    );
   },
 };
 
@@ -475,30 +493,6 @@ watch(
 function getFaviconCandidates(node: Browser.bookmarks.BookmarkTreeNode) {
   return faviconCandidatesMapping.value[node.id] ?? generateFavicons(node.url ?? "");
 }
-
-async function loadBookmarks() {
-  // const get = await browser.bookmarks.get(["5", "6"]);
-  // console.log("get", get);
-
-  return;
-
-  // 获取整个书签树
-  const tree = await browser.bookmarks.getTree();
-  console.log("tree", tree);
-
-  const subtree = await browser.bookmarks.getSubTree("1");
-  console.log("subtree", subtree);
-
-  // 获取特定文件夹的子项
-  const children = await browser.bookmarks.getChildren("1"); // 一般 "1" 是书签栏
-  console.log(children);
-
-  // 获取最近新加的书签
-  const bookmarks = await browser.bookmarks.getRecent(10);
-  console.log(bookmarks);
-}
-
-loadBookmarks();
 </script>
 
 <style scoped lang="less">

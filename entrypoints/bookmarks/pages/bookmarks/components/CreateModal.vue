@@ -60,6 +60,7 @@
 </template>
 
 <script setup lang="ts">
+import { initGroupName } from "@/bookmarks/api/bookmarks";
 import IconTag from "@/components/IconTag.vue";
 import { message } from "@/components/tiny-message";
 import TinyButton from "@/components/TinyButton.vue";
@@ -96,20 +97,6 @@ const modelValues = reactive({
   bookmarkUrl: "",
 });
 
-async function initGroupName() {
-  const res = await browser.bookmarks.search({
-    query: "分组",
-  });
-
-  if (res.length > 0) {
-    const titles = res.map((i) => i.title);
-    const maxNum = Math.max(...titles.map((i) => Number(i.replace("分组", ""))));
-    modelValues.folderName = `分组${maxNum + 1}`;
-    return;
-  }
-  modelValues.folderName = "分组1";
-}
-
 function cancel() {
   emits("cancel");
   visible.value = false;
@@ -145,12 +132,12 @@ function reset() {
 
 watch(
   () => visible.value,
-  (_visible) => {
+  async (_visible) => {
     if (!_visible) {
       reset();
     } else {
       if (isGroup) {
-        initGroupName();
+        modelValues.folderName = await initGroupName();
         return;
       }
 
