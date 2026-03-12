@@ -53,7 +53,10 @@ async function fetchTreeNodes() {
   const rootNode = res[0].children!;
   const bookmarkNodes = rootNode[0].children!;
   const otherNodes = rootNode[1].children!;
-  treeNodes.value = [...bookmarkNodes, ...otherNodes];
+  const nodes = [...bookmarkNodes, ...otherNodes].filter((node) => !node.url);
+  rootNode[0].title = "全部文件夹";
+  rootNode[0].children = [];
+  treeNodes.value = [rootNode[0], ...nodes];
 }
 
 fetchTreeNodes();
