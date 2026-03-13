@@ -46,7 +46,7 @@
             class="title-wrapper"
             :class="{ collapsed }"
           >
-            {{ menu.title }}
+            {{ t(`${menu.key}`) }}
           </div>
         </div>
         <div
@@ -78,6 +78,9 @@ import { useStorage } from "@vueuse/core";
 import LogoFull from "@/components/LogoFull.vue";
 import LogoIcon from "@/components/LogoIcon.vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const router = useRouter();
 
@@ -89,29 +92,13 @@ const collapsed = useStorage("collapsed", false);
 
 const menus = [
   {
-    key: "home",
-    title: "Home",
+    key: "menuHome",
     icon: "solar:home-smile-linear",
     activeIcon: "solar:home-smile-bold",
     path: "/",
   },
   {
-    key: "home2",
-    title: "Home",
-    icon: "solar:home-smile-linear",
-    activeIcon: "solar:home-smile-bold",
-    path: "/",
-  },
-  {
-    key: "home3",
-    title: "Home",
-    icon: "solar:home-smile-linear",
-    activeIcon: "solar:home-smile-bold",
-    path: "/",
-  },
-  {
-    key: "settings",
-    title: "Settings",
+    key: "menuSettings",
     icon: "famicons:settings-outline",
     activeIcon: "famicons:settings-sharp",
     path: "/settings",

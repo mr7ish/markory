@@ -4,11 +4,29 @@
       class="img-404"
       src="@/assets/images/404.svg"
     />
-    <div>page not found...</div>
+    <div>{{ t("pageNotFoundTips") }}</div>
+
+    <TinyButton
+      type="primary"
+      @click="back"
+    >
+      {{ t("menuHome") }}
+    </TinyButton>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import TinyButton from "@/components/TinyButton.vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+const back = () => {
+  router.push({ name: "bookmarks" });
+};
+
+const { t } = useI18n();
+</script>
 
 <style scoped lang="less">
 .not-found {

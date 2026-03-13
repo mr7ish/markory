@@ -4,11 +4,14 @@
       class="img-empty"
       src="@/assets/images/empty.svg"
     />
-    <div>nothing here...</div>
+    <div>{{ t("emptyTips") }}</div>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+</script>
 
 <style scoped lang="less">
 .empty-wrapper {

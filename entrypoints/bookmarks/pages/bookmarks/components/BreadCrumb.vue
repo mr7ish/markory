@@ -9,14 +9,14 @@
         dragOverFolderId === route.id ? 'drag-over' : '',
         dragDisabledFolderId === route.id ? 'drag-disabled' : '',
       ]"
-      :title="route.title"
+      :title="i === 0 ? t(route.id) : route.title"
       @click="jumpTo(route)"
       @dragenter="handleDragEnter(route.id, $event)"
       @dragover="handleDragOver(route.id, $event)"
       @dragleave="handleDragLeave($event)"
       @drop="handleDrop(route.id, $event)"
     >
-      <div class="title text-overflow-hidden">{{ route.title }}</div>
+      <div class="title text-overflow-hidden">{{ i === 0 ? t(route.id) : route.title }}</div>
       <IconTag
         v-if="i !== routes.length - 1"
         icon="ic:round-navigate-next"
@@ -32,6 +32,9 @@ import { message } from "@/components/tiny-message";
 import { moveNode } from "@/bookmarks/api/bookmarks";
 import { BreadCrumbRoute, useRoutesStore } from "@/bookmarks/store/routes";
 import { storeToRefs } from "pinia";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const routesStore = useRoutesStore();
 const { menus, setRoutes } = routesStore;

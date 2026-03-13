@@ -27,7 +27,7 @@
         id="search-input"
         type="text"
         class="input-wrapper"
-        placeholder="Search"
+        :placeholder="t('searchPlaceholder')"
         v-model.trim="modelValue"
         @focusin="focusIn"
       />
@@ -97,6 +97,9 @@ import { useRoute, useRouter } from "vue-router";
 import { useRoutesStore } from "@/bookmarks/store/routes";
 import { useRecycleStore } from "@/bookmarks/store/recycle";
 import { storeToRefs } from "pinia";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const router = useRouter();
 const route = useRoute();
