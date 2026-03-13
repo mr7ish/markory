@@ -31,6 +31,7 @@
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
+    "@wxt-dev/auto-icons": "^1.1.1",
     "@wxt-dev/module-vue": "^1.0.2",
     "less": "^4.5.1",
     "typescript": "^5.9.2",
