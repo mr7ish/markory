@@ -52,7 +52,7 @@
         <div
           class="cursor"
           :style="{
-            '--offset': offset * (menuItemGap + menuItemHeight) + 'px',
+            '--offset': `${offset * (menuItemGap + menuItemHeight)}px`,
           }"
         />
       </div>
@@ -77,6 +77,9 @@ import IconTag from "@/components/IconTag.vue";
 import { useStorage } from "@vueuse/core";
 import LogoFull from "@/components/LogoFull.vue";
 import LogoIcon from "@/components/LogoIcon.vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const activeKey = ref("home");
 const menuItemGap = 30;
@@ -111,13 +114,14 @@ const menus = [
     title: "Settings",
     icon: "famicons:settings-outline",
     activeIcon: "famicons:settings-sharp",
-    path: "/",
+    path: "/settings",
   },
 ];
 
 function menuClick(menu: (typeof menus)[0], index: number) {
   activeKey.value = menu.key;
   offset.value = index;
+  router.push(menu.path);
 }
 
 function toggle(_collapsed: boolean) {
