@@ -8,10 +8,10 @@
     <template #header>
       {{
         isGroup
-          ? "新建分组"
+          ? t("newGroup")
           : isFolderNode
-            ? `${isEdit ? "编辑" : "新建"}文件夹`
-            : `${isEdit ? "编辑" : "新建"}书签`
+            ? `${isEdit ? t("editText") : t("createText")}${t("folderText")}`
+            : `${isEdit ? t("editText") : t("createText")}${t("bookmarkText")}`
       }}
     </template>
     <div>
@@ -31,18 +31,18 @@
       <template v-if="isFolderNode || isGroup">
         <TinyInput
           v-model.trim="modelValues.folderName"
-          placeholder="文件夹名称"
+          :placeholder="t('folderPlaceholder')"
         />
       </template>
       <template v-else>
         <TinyInput
           v-model.trim="modelValues.bookmarkName"
-          placeholder="书签名称"
+          :placeholder="t('bookmarkPlaceholder')"
         />
         <TinyInput
           v-model.trim="modelValues.bookmarkUrl"
           style="margin-top: 10px"
-          placeholder="书签 URL"
+          :placeholder="t('bookmarkUrlPlaceholder')"
         />
       </template>
 
@@ -51,9 +51,9 @@
           type="secondary"
           @click="cancel"
         >
-          取消
+          {{ t("modalCancelText") }}
         </TinyButton>
-        <TinyButton @click="debounceConfirm">确定</TinyButton>
+        <TinyButton @click="debounceConfirm">{{ t("modalSureText") }}</TinyButton>
       </div>
     </div>
   </TinyModal>
@@ -67,6 +67,7 @@ import TinyButton from "@/components/TinyButton.vue";
 import TinyInput from "@/components/TinyInput.vue";
 import TinyModal from "@/components/TinyModal.vue";
 import { debounce } from "@/utils/_";
+import { useI18n } from "vue-i18n";
 
 export type FormValues = typeof modelValues;
 
@@ -86,6 +87,8 @@ const emits = defineEmits<{
   cancel: [];
   confirm: [FormValues];
 }>();
+
+const { t } = useI18n();
 
 const visible = defineModel<boolean>({
   default: false,
@@ -108,7 +111,7 @@ function confirm() {
   if (isFolderNode && !modelValues.folderName) {
     message({
       type: "warning",
-      content: "请输入文件夹名称",
+      content: t("folderInputEmptyMsg"),
     });
     return;
   }
@@ -116,7 +119,7 @@ function confirm() {
   if (!isFolderNode && (!modelValues.bookmarkName || !modelValues.bookmarkUrl)) {
     message({
       type: "warning",
-      content: "请输入书签名称和 URL",
+      content: t("bookmarkInputEmptyMsg"),
     });
     return;
   }

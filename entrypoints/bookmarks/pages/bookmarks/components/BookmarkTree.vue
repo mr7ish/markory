@@ -17,11 +17,14 @@
 <script setup lang="ts">
 import { shallowRef } from "vue";
 import TreeNode from "./TreeNode.vue";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps<{
   routeIds?: string[];
   contextNodeId?: string;
 }>();
+
+const { t } = useI18n();
 
 const treeNodes = shallowRef<Browser.bookmarks.BookmarkTreeNode[]>([]);
 const expandedNodes = shallowRef<Set<string>>(new Set());
@@ -54,7 +57,7 @@ async function fetchTreeNodes() {
   const bookmarkNodes = rootNode[0].children!;
   const otherNodes = rootNode[1].children!;
   const nodes = [...bookmarkNodes, ...otherNodes].filter((node) => !node.url);
-  rootNode[0].title = "全部文件夹";
+  rootNode[0].title = t("folder");
   rootNode[0].children = [];
   treeNodes.value = [rootNode[0], ...nodes];
 }

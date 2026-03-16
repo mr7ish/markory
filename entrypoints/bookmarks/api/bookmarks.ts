@@ -1,4 +1,5 @@
 import { message } from "@/components/tiny-message";
+import { t } from "@/i18n";
 
 /**
  * 获取书签栏和其他书签下的所有一级文件夹和书签
@@ -53,7 +54,7 @@ export async function createNode(params: Browser.bookmarks.CreateDetails) {
 
     return node;
   } catch (err) {
-    message.error("创建书签失败: " + err);
+    message.error(t("createFailedTips"));
     return null;
   }
 }
@@ -68,7 +69,7 @@ export async function editNode(params: { id: string; changes: Browser.bookmarks.
     const node = await browser.bookmarks.update(id, changes);
     return node;
   } catch (err) {
-    message.error("编辑书签失败: " + err);
+    message.error(t("editFailedTips"));
     return null;
   }
 }
@@ -81,7 +82,7 @@ export async function removeNode(id: string) {
     await browser.bookmarks.removeTree(id);
     return true;
   } catch (err) {
-    message.error("删除失败: " + err);
+    message.error(t("deleteFailedTips"));
     return false;
   }
 }
@@ -94,7 +95,7 @@ export async function moveNode(id: string, destination: { parentId?: string; ind
     const node = await browser.bookmarks.move(id, destination);
     return node;
   } catch (err) {
-    message.error("移动失败: " + err);
+    message.error(t("moveFailedTips"));
     return null;
   }
 }
@@ -109,15 +110,15 @@ export async function searchNode(query: string) {
 
 export async function initGroupName() {
   const res = await browser.bookmarks.search({
-    query: "分组",
+    query: t("groupName"),
   });
 
   if (res.length > 0) {
     const titles = res.map((i) => i.title);
-    const maxNum = Math.max(...titles.map((i) => Number(i.replace("分组", ""))));
-    return `分组${maxNum + 1}`;
+    const maxNum = Math.max(...titles.map((i) => Number(i.replace(t("groupName"), ""))));
+    return `${t("groupName")}${maxNum + 1}`;
   }
-  return "分组1";
+  return `${t("groupName")}1`;
 }
 
 /**
@@ -156,7 +157,7 @@ export async function groupTabs(groupId?: string) {
 
     return true;
   } catch (err) {
-    message.error("打包标签页失败: " + err);
+    message.error(t("groupFailedTips"));
     return false;
   }
 }

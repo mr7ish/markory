@@ -16,3 +16,5 @@ export const i18n = createI18n({
   fallbackLocale: "en",
   messages,
 });
+
+export const t = i18n.global.t;

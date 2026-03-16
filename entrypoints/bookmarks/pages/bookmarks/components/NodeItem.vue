@@ -102,6 +102,7 @@ import { moveNode } from "@/bookmarks/api/bookmarks";
 import { message } from "@/components/tiny-message";
 import { useRoutesStore } from "@/bookmarks/store/routes";
 import { storeToRefs } from "pinia";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps<{
   node: Browser.bookmarks.BookmarkTreeNode;
@@ -118,6 +119,8 @@ const emits = defineEmits<{
   dragStart: [node: Browser.bookmarks.BookmarkTreeNode, event: DragEvent];
   dragEnd: [event: DragEvent];
 }>();
+
+const { t, locale } = useI18n();
 
 const routesStore = useRoutesStore();
 const { setRoutes } = routesStore;
@@ -292,13 +295,21 @@ async function handleDrop(event: DragEvent) {
 
   try {
     const success = await moveNode(dragData.nodeId, { parentId: props.node.id });
+
+    const targetName = props.node.id === "1" ? t("folder") : props.node.title;
+
     if (success) {
-      message.success(`已移动"${dragData.nodeTitle}"到"${props.node.title}"`);
+      const tips =
+        locale.value === "zh"
+          ? `已移动"${dragData.nodeTitle}"到"${targetName}"`
+          : `${dragData.nodeTitle} has been moved to ${targetName}`;
+
+      message.success(tips);
       // 触发节点移动事件
       window.dispatchEvent(new CustomEvent("markory:nodemoved"));
     }
   } catch (error) {
-    message.error("移动失败");
+    message.error(t("moveFailedTips"));
   }
 }
 

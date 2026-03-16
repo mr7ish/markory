@@ -15,7 +15,7 @@
         }"
       />
       <div class="menu-tooltip">
-        {{ menu.title }}
+        {{ t(menu.id) }}
       </div>
     </div>
     <div
@@ -31,6 +31,9 @@
 import { useRoutesStore } from "@/bookmarks/store/routes";
 import IconTag from "@/components/IconTag.vue";
 import { storeToRefs } from "pinia";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const routesStore = useRoutesStore();
 const { menus, setActiveMenu, setRoutes } = routesStore;

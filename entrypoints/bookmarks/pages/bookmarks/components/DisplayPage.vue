@@ -36,7 +36,7 @@
       v-if="!hasMore && displayedNodes.length > 0"
       class="no-more-hint"
     >
-      <span>没有更多了~</span>
+      <span>{{ t("noMoreTips") }}</span>
     </div>
 
     <ContextMenu
@@ -58,10 +58,11 @@
 
     <TinyConfirm
       v-model="recycleConfirmVisible"
-      title="放入回收站"
-      content="10天内可在回收站中找回已删除文件。若不需要找回，请及时去回收站清理。"
+      :title="t('recycleModalTitle')"
+      :content="t('recycleModalContent')"
       :maskClosable="false"
-      confirm-text="确认放入"
+      :confirm-text="t('recycleModalConfirmText')"
+      :cancel-text="t('defaultCancelText')"
       type="danger"
       @confirm="recycleConfirm"
       @cancel="contextNode = undefined"
@@ -69,10 +70,11 @@
 
     <TinyConfirm
       v-model="deleteConfirmVisible"
-      :title="`删除${isFolderNode ? '文件夹' : '书签'}`"
-      content="确认删除吗？！删除后将无法恢复。"
+      :title="`${t('deleteText')}${t(isFolderNode ? 'folderText' : 'bookmarkText')}`"
+      :content="t('deleteModalContent')"
       :maskClosable="false"
-      confirm-text="确认删除"
+      :confirm-text="t('deleteModalConfirmText')"
+      :cancel-text="t('defaultCancelText')"
       type="danger"
       @confirm="deleteConfirm"
       @cancel="contextNode = undefined"
@@ -80,10 +82,11 @@
 
     <TinyConfirm
       v-model="clearConfirmVisible"
-      title="清空回收站"
-      content="确认清空回收站吗？！清空后将无法恢复。"
+      :title="t('clearModalTitle')"
+      :content="t('clearModalContent')"
       :maskClosable="false"
-      confirm-text="确认清空"
+      :confirm-text="t('clearModalConfirmText')"
+      :cancel-text="t('defaultCancelText')"
       type="danger"
       @confirm="clearConfirm"
     />
@@ -94,7 +97,7 @@
       :closeOnMask="false"
       destroyOnClose
     >
-      <template #header> 移动到 </template>
+      <template #header> {{ t("moveModalTitle") }} </template>
       <div class="tree-modal-content">
         <BookmarkTree
           v-model:selected-node="selectedNode"
@@ -107,9 +110,9 @@
           type="secondary"
           @click="treeModalCancel"
         >
-          取消
+          {{ t("modalCancelText") }}
         </TinyButton>
-        <TinyButton @click="debounceTreeModalConfirm">移动到此处</TinyButton>
+        <TinyButton @click="debounceTreeModalConfirm"> {{ t("moveModalConfirmText") }} </TinyButton>
       </div>
     </TinyModal>
 
@@ -147,6 +150,9 @@ import TinyButton from "@/components/TinyButton.vue";
 import { useRoutesStore } from "@/bookmarks/store/routes";
 import { storeToRefs } from "pinia";
 import { useRecycleStore } from "@/bookmarks/store/recycle";
+import { useI18n } from "vue-i18n";
+
+const { t, locale } = useI18n();
 
 const {
   nodes = [],
@@ -196,10 +202,17 @@ async function treeModalConfirm() {
     const success = await moveNode(contextNode.value.id, { parentId: selectedNode.value.id });
     if (success) {
       treeVisible.value = false;
-      message.success(`已移动"${contextNode.value.title}"到"${selectedNode.value.title}"`);
+
+      const targetName = selectedNode.value.id === "1" ? t("folder") : selectedNode.value.title;
+
+      const tips =
+        locale.value === "zh"
+          ? `已移动"${contextNode.value.title}"到"${targetName}"`
+          : `${contextNode.value.title} has been moved to ${targetName}`;
+      message.success(tips);
     }
   } catch (error) {
-    message.error("移动失败");
+    message.error(t("moveFailedTips"));
   }
 }
 
@@ -220,7 +233,7 @@ async function clearConfirm() {
   setRemoveNodeIds(removeIds);
 
   await Promise.all(recycleNodeIds.map((i) => removeNode(i)));
-  message.success("清空成功");
+  message.success(t("clearSuccessTips"));
   clearConfirmVisible.value = false;
 }
 
@@ -232,7 +245,7 @@ async function deleteConfirm() {
 
   const success = await removeNode(contextNode.value.id);
   if (success) {
-    message.success("删除成功");
+    message.success(t("deleteSuccessTips"));
     contextNode.value = undefined;
   }
 }
@@ -240,7 +253,7 @@ async function deleteConfirm() {
 function recycleConfirm() {
   if (!contextNode.value) return;
   emits("recycle", contextNode.value);
-  message.info("已放入回收站，请及时清理");
+  message.info(t("recycleSuccessTips"));
 }
 
 watchEffect(() => {
@@ -267,14 +280,14 @@ const isContextNodeFocused = computed(() => {
 const pageContextMenus = computed<ContextMenuItem[]>(() => {
   if (activeMenu.value === "folder") {
     return [
-      { label: "新建文件夹", value: "create" },
-      { label: "新建书签", value: "create" },
-      { label: "打包当前窗口所有标签页", value: "group" },
+      { label: t("createFolderContext"), value: "create" },
+      { label: t("createBookmarkContext"), value: "create" },
+      { label: t("groupContext"), value: "group" },
     ];
   }
 
   if (activeMenu.value === "recycle") {
-    return [{ label: "清空回收站", value: "clear", danger: true }];
+    return [{ label: t("clearContext"), value: "clear", danger: true }];
   }
 
   return [];
@@ -283,20 +296,23 @@ const pageContextMenus = computed<ContextMenuItem[]>(() => {
 const nodeContextMenus = computed<ContextMenuItem[]>(() => {
   if (["folder", "focus"].includes(activeMenu.value)) {
     return [
-      { label: "打开", value: "open" },
-      { label: "分组打开所有书签", value: !contextNode.value?.url ? "openAllByGroup" : "" },
-      { label: `${!isContextNodeFocused.value ? "" : "取消"}特别关注`, value: "focus" },
-      { label: "编辑", value: "edit" },
-      { label: "移动", value: "move" },
-      { label: "分隔线", value: "divided", divided: true },
-      { label: "放入回收站", value: "recycle", danger: true },
+      { label: t("openContext"), value: "open" },
+      { label: t("openAllByGroupContext"), value: !contextNode.value?.url ? "openAllByGroup" : "" },
+      {
+        label: `${!isContextNodeFocused.value ? "" : t("defaultCancelText")}${t("focusContext")}`,
+        value: "focus",
+      },
+      { label: t("editText"), value: "edit" },
+      { label: t("moveContext"), value: "move" },
+      { label: t("dividedContext"), value: "divided", divided: true },
+      { label: t("recycleContext"), value: "recycle", danger: true },
     ].filter((i) => i.value);
   }
 
   if (activeMenu.value === "recycle") {
     return [
-      { label: "放回", value: "recycle" },
-      { label: "删除", value: "delete", danger: true },
+      { label: t("putBackContext"), value: "recycle" },
+      { label: t("deleteContext"), value: "delete", danger: true },
     ];
   }
 
@@ -305,7 +321,7 @@ const nodeContextMenus = computed<ContextMenuItem[]>(() => {
 
 const contextMenuTask = {
   create: (item: ContextMenuItem) => {
-    isFolderNode.value = item.label === "新建文件夹";
+    isFolderNode.value = item.label === t("createFolderContext");
     isEdit.value = false;
     isGroup.value = false;
     createModalVisible.value = true;
@@ -361,7 +377,7 @@ const contextMenuTask = {
   },
   clear: () => {
     if (recycleNodeIds.length === 0) {
-      message.warning("回收站为空");
+      message.warning(t("recycleBinEmptyTips"));
       return;
     }
     clearConfirmVisible.value = true;
@@ -406,17 +422,20 @@ async function getValues(values: FormValues) {
       parentId,
     });
 
-    if (!node) return;
+    if (!node) {
+      message.error(t("createFailedTips"));
+      return;
+    }
 
     if (isGroup.value) {
       const success = await groupTabs(node.id);
       if (!success) return;
       createModalVisible.value = false;
-      message.success("打包成功");
+      message.success(t("groupSuccessTips"));
       return;
     }
 
-    message.success("创建成功");
+    message.success(t("createSuccessTips"));
   } else {
     if (!contextNode.value) return;
 
@@ -430,7 +449,7 @@ async function getValues(values: FormValues) {
 
     if (!node) return;
 
-    message.success("编辑成功");
+    message.success(t("editSuccessTips"));
   }
 
   createModalVisible.value = false;

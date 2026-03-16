@@ -34,7 +34,7 @@ import { BreadCrumbRoute, useRoutesStore } from "@/bookmarks/store/routes";
 import { storeToRefs } from "pinia";
 import { useI18n } from "vue-i18n";
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const routesStore = useRoutesStore();
 const { menus, setRoutes } = routesStore;
@@ -196,12 +196,16 @@ async function handleDrop(folderId: string, e: DragEvent) {
     const success = await moveNode(dragData.nodeId, { parentId: targetFolderId });
     if (success) {
       // 获取目标文件夹名称
-      const targetFolder = routes.value.find((r: BreadCrumbRoute) => r.id === folderId);
-      const targetName = targetFolder?.title ?? "此文件夹";
-      message.success(`已移动"${dragData.nodeTitle}"到"${targetName}"`);
+      const targetFolder = routes.value.find((r: BreadCrumbRoute) => r.id === folderId)!;
+      const targetName = targetFolder.id === "folder" ? t(targetFolder.id) : targetFolder.title;
+      const tips =
+        locale.value === "zh"
+          ? `已移动"${dragData.nodeTitle}"到"${targetName}"`
+          : `${dragData.nodeTitle} has been moved to ${targetName}`;
+      message.success(tips);
     }
   } catch (error) {
-    message.error("移动失败");
+    message.error(t("moveFailedTips"));
   }
 }
 

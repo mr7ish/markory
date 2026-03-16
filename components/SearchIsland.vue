@@ -255,6 +255,7 @@ function focusOut() {
 
       .result-item {
         height: 36px;
+        line-height: 36px;
         padding: 4px 8px;
         display: flex;
         align-items: center;
