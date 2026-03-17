@@ -1,4 +1,4 @@
-export const DEFAULT_LOCALE = "en";
+export const DEFAULT_LOCALE = "zh";
 
 export function getLocale() {
   return localStorage.getItem("locale") || DEFAULT_LOCALE;

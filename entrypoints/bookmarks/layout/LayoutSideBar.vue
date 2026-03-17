@@ -84,12 +84,6 @@ const { t } = useI18n();
 
 const router = useRouter();
 
-const activeKey = ref("home");
-const menuItemGap = 30;
-const menuItemHeight = 40;
-const offset = ref(0);
-const collapsed = useStorage("collapsed", false);
-
 const menus = [
   {
     key: "menuHome",
@@ -104,6 +98,12 @@ const menus = [
     path: "/settings",
   },
 ];
+
+const menuItemGap = 30;
+const menuItemHeight = 40;
+const activeKey = useStorage("active-menu-key", "menuHome");
+const collapsed = useStorage("collapsed", false);
+const offset = ref(menus.findIndex((i) => i.key === activeKey.value));
 
 function menuClick(menu: (typeof menus)[0], index: number) {
   activeKey.value = menu.key;
