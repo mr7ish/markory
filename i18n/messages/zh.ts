@@ -59,4 +59,7 @@ export default {
   deleteFailedTips: "删除失败",
   groupName: "分组",
   groupFailedTips: "打包失败",
+  lang: "语言",
+  langZh: "中文",
+  langEn: "英文",
 };

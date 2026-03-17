@@ -61,4 +61,7 @@ export default {
   deleteFailedTips: "Delete failed",
   groupName: "Group",
   groupFailedTips: "Group failed",
+  lang: "Language",
+  langZh: "Chinese",
+  langEn: "English",
 };
