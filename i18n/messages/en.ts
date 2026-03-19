@@ -64,4 +64,6 @@ export default {
   lang: "Language",
   langZh: "Chinese",
   langEn: "English",
+  preview: "Preview",
+  settingPreview: "Enable floating preview bookmark",
 };

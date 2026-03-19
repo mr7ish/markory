@@ -62,4 +62,6 @@ export default {
   lang: "语言",
   langZh: "中文",
   langEn: "英文",
+  preview: "预览",
+  settingPreview: "开启悬浮预览书签",
 };

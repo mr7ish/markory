@@ -20,6 +20,15 @@
           />
         </div>
       </div>
+      <div class="setting-item">
+        <div class="label">{{ t("preview") }}</div>
+        <TinyRadio
+          class="radio-item"
+          :label="t('settingPreview')"
+          :checked="enablePreview"
+          @click="setEnablePreview(!enablePreview)"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -28,9 +37,15 @@
 import { useI18n } from "vue-i18n";
 import { useLocale } from "@/bookmarks/hooks/useLocale";
 import TinyRadio from "@/components/tiny-raido";
+import { useSettingStore } from "@/bookmarks/store/setting";
+import { storeToRefs } from "pinia";
 
 const { t } = useI18n();
 const { changeLocale, locale } = useLocale();
+
+const settingStore = useSettingStore();
+const { setEnablePreview } = settingStore;
+const { enablePreview } = storeToRefs(settingStore);
 </script>
 
 <style scoped lang="less">
@@ -46,6 +61,9 @@ const { changeLocale, locale } = useLocale();
 
   .content {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 
     .setting-item {
       display: flex;
@@ -61,7 +79,7 @@ const { changeLocale, locale } = useLocale();
         gap: 8px;
 
         .radio-item {
-          width: 100px;
+          min-width: 100px;
         }
       }
     }

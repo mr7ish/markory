@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="nodeItemRef"
     :key="node.id"
     class="node-item-wrapper"
     :class="{
@@ -16,6 +17,8 @@
     @dragover="handleDragOver"
     @dragleave="handleDragLeave"
     @drop="handleDrop"
+    @mouseenter="mouseEnterNode(node)"
+    @mouseleave="mouseLeaveNode"
   >
     <IconTag
       v-if="!node.url"
@@ -113,12 +116,33 @@ const props = defineProps<{
   isFocused?: boolean;
   disabled?: boolean; // 点击禁用（回收站）
   dragDisabled?: boolean; // 拖拽禁用（特别关注 + 回收站）
+  enablePreview?: boolean;
 }>();
 
 const emits = defineEmits<{
   dragStart: [node: Browser.bookmarks.BookmarkTreeNode, event: DragEvent];
   dragEnd: [event: DragEvent];
+  enter: [node: Browser.bookmarks.BookmarkTreeNode, x: number, y: number];
+  leave: [];
 }>();
+
+const nodeItemRef = useTemplateRef("nodeItemRef");
+
+function mouseEnterNode(node: Browser.bookmarks.BookmarkTreeNode) {
+  if (!props.enablePreview) return;
+  if (!node.url) return;
+  if (!nodeItemRef.value) return;
+
+  const rect = nodeItemRef.value.getBoundingClientRect();
+  const { top, left } = rect;
+
+  emits("enter", node, left, top);
+}
+
+function mouseLeaveNode() {
+  if (!props.enablePreview) return;
+  emits("leave");
+}
 
 const { t, locale } = useI18n();
 

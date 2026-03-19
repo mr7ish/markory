@@ -8,6 +8,12 @@
       v-if="nodes.length > 0"
       class="nodes-wrapper"
     >
+      <URLPreview
+        ref="urlPreviewRef"
+        :url="previewURL"
+        :left="previewX"
+        :top="previewY"
+      />
       <NodeItem
         v-for="node in displayedNodes"
         :key="node.id"
@@ -28,6 +34,9 @@
             openContextMenu($event, nodeContextMenus);
           }
         "
+        :enable-preview="enablePreview"
+        @enter="mouseEnterNode"
+        @leave="mouseLeaveNode"
       />
     </div>
     <EmptyWrapper v-else />
@@ -151,6 +160,26 @@ import { useRoutesStore } from "@/bookmarks/store/routes";
 import { storeToRefs } from "pinia";
 import { useRecycleStore } from "@/bookmarks/store/recycle";
 import { useI18n } from "vue-i18n";
+import URLPreview from "@/components/URLPreview.vue";
+import { useSettingStore } from "@/bookmarks/store/setting";
+
+const { enablePreview } = useSettingStore();
+const urlPreviewRef = useTemplateRef("urlPreviewRef");
+const previewX = ref(0);
+const previewY = ref(0);
+const previewURL = ref("");
+
+function mouseEnterNode(node: Browser.bookmarks.BookmarkTreeNode, x: number, y: number) {
+  previewX.value = x;
+  previewY.value = y;
+  previewURL.value = node.url!;
+  urlPreviewRef.value?.showPreview();
+}
+
+function mouseLeaveNode() {
+  previewURL.value = "";
+  urlPreviewRef.value?.hidePreview();
+}
 
 const { t, locale } = useI18n();
 
@@ -536,6 +565,7 @@ function getFaviconCandidates(node: Browser.bookmarks.BookmarkTreeNode) {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); // 根据宽度自动适应列数
     gap: 50px;
     row-gap: 30px;
+    position: relative;
   }
 
   .no-more-hint {

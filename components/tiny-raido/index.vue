@@ -1,9 +1,6 @@
 <template>
   <div class="tiny-radio-wrapper">
-    <button
-      class="radio-wrapper"
-      @click="checked = !checked"
-    >
+    <button class="radio-wrapper">
       <div
         class="indicator"
         :class="{ checked }"
