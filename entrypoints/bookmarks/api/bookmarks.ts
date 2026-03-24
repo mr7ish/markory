@@ -122,7 +122,9 @@ export async function initGroupName() {
 
   if (res.length > 0) {
     const titles = res.map((i) => i.title);
-    const maxNum = Math.max(...titles.map((i) => Number(i.replace(t("groupName"), ""))));
+    const maxNum = Math.max(
+      ...titles.map((i) => Number(i.replace(t("groupName"), ""))).filter((i) => !isNaN(i)),
+    );
     return `${t("groupName")}${maxNum + 1}`;
   }
   return `${t("groupName")}1`;
