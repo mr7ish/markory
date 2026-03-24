@@ -251,7 +251,7 @@ async function treeModalConfirm() {
 }
 
 // 拖拽禁用判断（focus 和 recycle 模块下禁用拖拽）
-const isDragDisabled = computed(() => ["recycle", "focus"].includes(activeMenu.value));
+const isDragDisabled = computed(() => ["recycle", "focus", "group"].includes(activeMenu.value));
 
 // 无限滚动
 const scrollContainer = useTemplateRef("scrollContainer");
