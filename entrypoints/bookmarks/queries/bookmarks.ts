@@ -5,7 +5,7 @@ import {
 } from "@/entrypoints/bookmarks/api/bookmarks";
 import { useRoutesStore } from "../store/routes";
 import { storeToRefs } from "pinia";
-import { useIDBKeyval } from "@vueuse/integrations/useIDBKeyval";
+import { useGroupStore } from "../store/group";
 
 export function useBookmarkNodesQuery() {
   const nodes = shallowRef<Browser.bookmarks.BookmarkTreeNode[]>([]);
@@ -13,11 +13,12 @@ export function useBookmarkNodesQuery() {
   const routesStore = useRoutesStore();
   const { routes } = storeToRefs(routesStore);
 
-  const { data: groupNodeIds } = useIDBKeyval<string[]>("group-nodes", []);
+  const groupStore = useGroupStore();
+  const { groupNodeIds, isGroupNodesFinished } = storeToRefs(groupStore);
 
   watch(
-    routes,
-    (_routes) => {
+    [routes, isGroupNodesFinished],
+    ([_routes, _isGroupNodesFinished]) => {
       console.log("useBookmarkNodesQuery => ", _routes);
       if (_routes.length === 0) return;
 
@@ -28,7 +29,7 @@ export function useBookmarkNodesQuery() {
         return;
       }
 
-      if (id === "group") {
+      if (id === "group" && _isGroupNodesFinished) {
         fetchGroupNodes();
         return;
       }

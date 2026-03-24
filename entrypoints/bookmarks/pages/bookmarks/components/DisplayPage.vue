@@ -162,6 +162,11 @@ import { useRecycleStore } from "@/bookmarks/store/recycle";
 import { useI18n } from "vue-i18n";
 import URLPreview from "@/components/URLPreview.vue";
 import { useSettingStore } from "@/bookmarks/store/setting";
+import { useGroupStore } from "@/bookmarks/store/group";
+
+const groupStore = useGroupStore();
+const { setGroupNodeIds } = groupStore;
+const { groupNodeIds } = storeToRefs(groupStore);
 
 const { enablePreview } = useSettingStore();
 const urlPreviewRef = useTemplateRef("urlPreviewRef");
@@ -198,7 +203,6 @@ const {
 const emits = defineEmits<{
   focus: [node: Browser.bookmarks.BookmarkTreeNode];
   recycle: [node: Browser.bookmarks.BookmarkTreeNode];
-  group: [id: string];
 }>();
 
 const routesStore = useRoutesStore();
@@ -460,7 +464,7 @@ async function getValues(values: FormValues) {
     if (isGroup.value) {
       const groupId = await groupTabs(node.id);
       if (!groupId) return;
-      emits("group", groupId);
+      setGroupNodeIds([...groupNodeIds.value, groupId]);
       createModalVisible.value = false;
       message.success(t("groupSuccessTips"));
       return;
