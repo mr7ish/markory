@@ -1,30 +1,34 @@
 <template>
-  <div
+  <teleport
     v-if="isVisible"
-    class="preview-wrapper"
-    :class="[popClass, 'transform-gpu']"
-    :style="{
-      top: `${top - height - 10}px`,
-      left: `${left - 10}px`,
-      width: `${width}px`,
-      height: `${height}px`,
-    }"
+    to="body"
   >
     <div
-      class="img-wrapper"
+      class="preview-wrapper"
+      :class="[popClass, 'transform-gpu']"
       :style="{
+        top: `${top - height - 10}px`,
+        left: `${left - 10}px`,
         width: `${width}px`,
         height: `${height}px`,
       }"
     >
-      <img
-        class="preview-img"
-        :src="previewSrc"
-        alt="preview"
-        @load="handleImageLoad"
-      />
+      <div
+        class="img-wrapper"
+        :style="{
+          width: `${width}px`,
+          height: `${height}px`,
+        }"
+      >
+        <img
+          class="preview-img"
+          :src="previewSrc"
+          alt="preview failed"
+          @load="handleImageLoad"
+        />
+      </div>
     </div>
-  </div>
+  </teleport>
 </template>
 
 <script setup lang="ts">
@@ -114,7 +118,7 @@ defineExpose({
 .img-wrapper {
   border-radius: 0.625rem;
   overflow: hidden;
-  box-shadow: 0 0 10px var(--link-preview-boxshadow);
+  box-shadow: var(--shadow-s);
 
   .preview-img {
     width: 100%;
