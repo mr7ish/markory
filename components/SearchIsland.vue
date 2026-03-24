@@ -62,9 +62,10 @@
           />
           <IconTag
             v-else
-            icon="ion:earth-sharp"
-            width="24"
+            icon="icon-park-solid:bookmark-three"
+            width="22"
           />
+          <!-- icon="ion:earth-sharp" -->
           <span
             class="node-title text-overflow-hidden"
             :title="node.title"
