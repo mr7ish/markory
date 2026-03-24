@@ -22,6 +22,12 @@ export const useRoutesStore = defineStore("routesStore", () => {
       activeIcon: "si:heart-fill",
     },
     {
+      title: "分组",
+      id: "group",
+      icon: "material-symbols:tab-group-outline",
+      activeIcon: "material-symbols:tab-group",
+    },
+    {
       title: "回收站",
       id: "recycle",
       icon: "basil:trash-outline",

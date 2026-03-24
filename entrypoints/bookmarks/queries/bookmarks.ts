@@ -1,12 +1,19 @@
-import { fetchAllNodes, fetchNodeChildrenById } from "@/entrypoints/bookmarks/api/bookmarks";
+import {
+  fetchAllNodes,
+  fetchNodeChildrenById,
+  fetchSpecifiedNodes,
+} from "@/entrypoints/bookmarks/api/bookmarks";
 import { useRoutesStore } from "../store/routes";
 import { storeToRefs } from "pinia";
+import { useIDBKeyval } from "@vueuse/integrations/useIDBKeyval";
 
 export function useBookmarkNodesQuery() {
   const nodes = shallowRef<Browser.bookmarks.BookmarkTreeNode[]>([]);
 
   const routesStore = useRoutesStore();
   const { routes } = storeToRefs(routesStore);
+
+  const { data: groupNodeIds } = useIDBKeyval<string[]>("group-nodes", []);
 
   watch(
     routes,
@@ -18,6 +25,11 @@ export function useBookmarkNodesQuery() {
 
       if (id === "folder") {
         fetchTopNodes();
+        return;
+      }
+
+      if (id === "group") {
+        fetchGroupNodes();
         return;
       }
 
@@ -36,9 +48,29 @@ export function useBookmarkNodesQuery() {
   }
 
   async function fetchChildrenNodes(id: string) {
-    if (!id) return;
+    if (!id) {
+      nodes.value = [];
+      return;
+    }
     const _nodes = await fetchNodeChildrenById(id);
     console.log("_nodes => ", _nodes);
+    nodes.value = _nodes;
+  }
+
+  async function fetchGroupNodes() {
+    if (!groupNodeIds.value.length) {
+      nodes.value = [];
+      return;
+    }
+
+    const params: string[] = [];
+
+    // 可能由于 vue 代理了原始数组，导致报错
+    for (const id of groupNodeIds.value) {
+      params.push(id);
+    }
+
+    const _nodes = await fetchSpecifiedNodes(params as [string, ...string[]]);
     nodes.value = _nodes;
   }
 

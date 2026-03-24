@@ -22,6 +22,13 @@ export async function fetchNodeChildrenById(id: string) {
   return children;
 }
 
+/**
+ * 获取一组指定节点
+ */
+export async function fetchSpecifiedNodes(ids: [string, ...string[]]) {
+  return await browser.bookmarks.get(ids);
+}
+
 function processUrl(url?: string) {
   if (!url) {
     return "";
@@ -125,24 +132,26 @@ export async function initGroupName() {
  * 打包标签页到新文件夹
  */
 export async function groupTabs(groupId?: string) {
-  const tabs = await browser.tabs.query({
-    currentWindow: true,
-  });
-
-  let parentId = groupId;
-
-  if (!groupId) {
-    const title = await initGroupName();
-
-    const node = await createNode({
-      parentId: "1",
-      title,
+  try {
+    const tabs = await browser.tabs.query({
+      currentWindow: true,
     });
 
-    parentId = node?.id;
-  }
+    let parentId = groupId;
 
-  try {
+    if (!groupId) {
+      const title = await initGroupName();
+
+      const node = await createNode({
+        parentId: "1",
+        title,
+      });
+
+      if (!node) return null;
+
+      parentId = node.id;
+    }
+
     await Promise.allSettled(
       tabs
         .filter((tab) => !!tab.url && !!tab.title && tab.url !== "chrome://bookmarks/")
@@ -155,10 +164,10 @@ export async function groupTabs(groupId?: string) {
         ),
     );
 
-    return true;
+    return parentId!;
   } catch (err) {
     message.error(t("groupFailedTips"));
-    return false;
+    return null;
   }
 }
 

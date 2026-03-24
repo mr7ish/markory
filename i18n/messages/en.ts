@@ -6,6 +6,7 @@ export default {
   pageNotFoundTips: "page not found...",
   folder: "All Folders",
   focus: "Focus",
+  group: "Group",
   recycle: "Recycle Bin",
   noMoreTips: "no more ~",
   moveFailedTips: "move failed",

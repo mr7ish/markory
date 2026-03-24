@@ -6,6 +6,7 @@ export default {
   pageNotFoundTips: "你迷路了...",
   folder: "全部文件夹",
   focus: "特别关注",
+  group: "分组",
   recycle: "回收站",
   noMoreTips: "没有更多了~",
   moveFailedTips: "移动失败",

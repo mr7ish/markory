@@ -198,6 +198,7 @@ const {
 const emits = defineEmits<{
   focus: [node: Browser.bookmarks.BookmarkTreeNode];
   recycle: [node: Browser.bookmarks.BookmarkTreeNode];
+  group: [id: string];
 }>();
 
 const routesStore = useRoutesStore();
@@ -457,8 +458,9 @@ async function getValues(values: FormValues) {
     }
 
     if (isGroup.value) {
-      const success = await groupTabs(node.id);
-      if (!success) return;
+      const groupId = await groupTabs(node.id);
+      if (!groupId) return;
+      emits("group", groupId);
       createModalVisible.value = false;
       message.success(t("groupSuccessTips"));
       return;

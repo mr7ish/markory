@@ -9,6 +9,7 @@
         :route-ids="routes.slice(1).map((i) => i.id)"
         @focus="focus"
         @recycle="recycle"
+        @group="group"
       />
     </div>
     <MenuIsland />
@@ -56,6 +57,8 @@ const { data: focusNodes, set: setFocusNodes } = useIDBKeyval<Browser.bookmarks.
 
 const focusNodeIds = computed(() => focusNodes.value.map((i) => i.id));
 
+const { data: groupNodeIds, set: setGroupNodeIds } = useIDBKeyval<string[]>("group-nodes", []);
+
 watchOnce(isRecycleNodesFinished, removeExpiredRecycleNodes);
 
 watch(activeMenu, (_activeMenu) => {
@@ -77,7 +80,7 @@ async function removeExpiredRecycleNodes() {
 }
 
 const showNodes = computed(() => {
-  if (activeMenu.value === "folder" || !isNaN(Number(queryId.value))) {
+  if (["folder", "group"].includes(activeMenu.value) || !isNaN(Number(queryId.value))) {
     return nodes.value.filter((i) => !recycleNodeIds.value.includes(i.id));
   }
 
@@ -114,6 +117,10 @@ function recycle(node: Browser.bookmarks.BookmarkTreeNode) {
   }
 
   setRecycleNodes(recycleNodes.value.filter((i) => i.node.id !== node.id));
+}
+
+function group(id: string) {
+  setGroupNodeIds([...groupNodeIds.value, id]);
 }
 
 const pendingDeleteIds = ref<string[]>([]);
