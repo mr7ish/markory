@@ -361,6 +361,7 @@ const contextMenuTask = {
     createModalVisible.value = true;
   },
   group: () => {
+    isFolderNode.value = true;
     isGroup.value = true;
     createModalVisible.value = true;
   },
