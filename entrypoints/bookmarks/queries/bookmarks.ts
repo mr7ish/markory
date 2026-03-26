@@ -79,5 +79,6 @@ export function useBookmarkNodesQuery() {
     nodes,
     fetchTopNodes,
     fetchChildrenNodes,
+    fetchGroupNodes,
   };
 }

@@ -44,7 +44,7 @@ const {
 const searchStore = useSearchStore();
 const { setTree } = searchStore;
 
-const { nodes, fetchTopNodes, fetchChildrenNodes } = useBookmarkNodesQuery();
+const { nodes, fetchTopNodes, fetchChildrenNodes, fetchGroupNodes } = useBookmarkNodesQuery();
 
 const { data: focusNodes, set: setFocusNodes } = useIDBKeyval<Browser.bookmarks.BookmarkTreeNode[]>(
   "focus-nodes",
@@ -146,6 +146,11 @@ const stop = startWatchNode((id: string, { removeInfo }) => {
 
   if (queryId.value === "folder") {
     fetchTopNodes();
+    return;
+  }
+
+  if (queryId.value === "group") {
+    setTimeout(() => fetchGroupNodes(), 500);
     return;
   }
 

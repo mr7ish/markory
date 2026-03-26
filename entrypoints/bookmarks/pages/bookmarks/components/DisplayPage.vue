@@ -320,6 +320,10 @@ const pageContextMenus = computed<ContextMenuItem[]>(() => {
     ];
   }
 
+  if (activeMenu.value === "group") {
+    return [{ label: t("groupContext"), value: "group" }];
+  }
+
   if (activeMenu.value === "recycle") {
     return [{ label: t("clearContext"), value: "clear", danger: true }];
   }
@@ -341,6 +345,10 @@ const nodeContextMenus = computed<ContextMenuItem[]>(() => {
       { label: t("dividedContext"), value: "divided", divided: true },
       { label: t("recycleContext"), value: "recycle", danger: true },
     ].filter((i) => i.value);
+  }
+
+  if (activeMenu.value === "group") {
+    return [{ label: t("recycleContext"), value: "recycle", danger: true }];
   }
 
   if (activeMenu.value === "recycle") {
@@ -449,7 +457,7 @@ async function getValues(values: FormValues) {
   const { folderName, bookmarkName, bookmarkUrl } = values;
 
   if (!isEdit.value) {
-    const parentId = queryId.value === "folder" ? undefined : queryId.value;
+    const parentId = ["folder", "group"].includes(queryId.value) ? undefined : queryId.value;
 
     const node = await createNode({
       title: !bookmarkUrl ? folderName : bookmarkName,
