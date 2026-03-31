@@ -332,7 +332,7 @@ const pageContextMenus = computed<ContextMenuItem[]>(() => {
 });
 
 const nodeContextMenus = computed<ContextMenuItem[]>(() => {
-  if (["folder", "focus"].includes(activeMenu.value)) {
+  if (["folder", "focus", "group"].includes(activeMenu.value)) {
     return [
       { label: t("openContext"), value: "open" },
       { label: t("openAllByGroupContext"), value: !contextNode.value?.url ? "openAllByGroup" : "" },
@@ -345,10 +345,6 @@ const nodeContextMenus = computed<ContextMenuItem[]>(() => {
       { label: t("dividedContext"), value: "divided", divided: true },
       { label: t("recycleContext"), value: "recycle", danger: true },
     ].filter((i) => i.value);
-  }
-
-  if (activeMenu.value === "group") {
-    return [{ label: t("recycleContext"), value: "recycle", danger: true }];
   }
 
   if (activeMenu.value === "recycle") {
