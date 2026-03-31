@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { initGroupName } from "@/bookmarks/api/bookmarks";
+import { initGroupNameBrowser } from "@/bookmarks/api/bookmarks";
 import IconTag from "@/components/IconTag.vue";
 import { message } from "@/components/tiny-message";
 import TinyButton from "@/components/TinyButton.vue";
@@ -140,7 +140,7 @@ watch(
       reset();
     } else {
       if (isGroup) {
-        modelValues.folderName = await initGroupName();
+        modelValues.folderName = await initGroupNameBrowser();
         return;
       }
 

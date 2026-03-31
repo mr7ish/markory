@@ -30,6 +30,7 @@
         :placeholder="t('searchPlaceholder')"
         v-model.trim="modelValue"
         @focusin="focusIn"
+        autocomplete="off"
       />
 
       <div

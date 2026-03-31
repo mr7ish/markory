@@ -27,9 +27,14 @@ import { useSearchStore } from "@/bookmarks/store/search";
 import { useRoutesStore } from "@/bookmarks/store/routes";
 import { storeToRefs } from "pinia";
 import { useRecycleStore } from "@/bookmarks/store/recycle";
+import { useGroupStore } from "@/bookmarks/store/group";
 
 const routesStore = useRoutesStore();
 const { activeMenu, routes, queryId } = storeToRefs(routesStore);
+
+const groupStore = useGroupStore();
+const { setGroupNodeIds } = groupStore;
+const { groupNodeIds } = storeToRefs(groupStore);
 
 const recycleStore = useRecycleStore();
 const { setRecycleNodes, setRemoveNodeIds } = recycleStore;
@@ -117,32 +122,23 @@ function recycle(node: Browser.bookmarks.BookmarkTreeNode) {
 }
 
 const pendingDeleteIds = ref<string[]>([]);
-let deleteTimer: ReturnType<typeof setTimeout> | null = null;
+
+let processTimer: ReturnType<typeof setTimeout> | null = null;
 
 async function flushPendingDeletes() {
   if (pendingDeleteIds.value.length > 0) {
     setRecycleNodes(recycleNodes.value.filter((i) => !allRecycleNodeIds.value.includes(i.node.id)));
     setFocusNodes(focusNodes.value.filter((i) => !allRemoveNodeIds.value.includes(i.id)));
+    setGroupNodeIds(groupNodeIds.value.filter((i) => !pendingDeleteIds.value.includes(i)));
     pendingDeleteIds.value = [];
     setRemoveNodeIds([]);
   }
 
-  deleteTimer = null;
+  processTimer = null;
 }
 
-const stop = startWatchNode((id: string, { removeInfo }) => {
-  console.log("watching Node => ", id);
-
+function otherProcess() {
   setTree();
-
-  if (removeInfo) {
-    pendingDeleteIds.value.push(id);
-
-    if (deleteTimer) {
-      clearTimeout(deleteTimer);
-    }
-    deleteTimer = setTimeout(flushPendingDeletes, 500);
-  }
 
   if (queryId.value === "folder") {
     fetchTopNodes();
@@ -150,16 +146,61 @@ const stop = startWatchNode((id: string, { removeInfo }) => {
   }
 
   if (queryId.value === "group") {
-    setTimeout(() => fetchGroupNodes(), 500);
+    fetchGroupNodes();
     return;
   }
 
   if (isNaN(Number(queryId.value))) return;
 
   fetchChildrenNodes(queryId.value);
+}
+
+const stop = startWatchNode((id: string, { removeInfo }) => {
+  console.log("watching Node => ", id);
+
+  if (processTimer) {
+    clearTimeout(processTimer);
+  }
+
+  if (removeInfo) {
+    pendingDeleteIds.value.push(id);
+
+    processTimer = setTimeout(flushPendingDeletes, 500);
+  } else {
+    processTimer = setTimeout(otherProcess, 500);
+  }
 });
 
-onUnmounted(stop);
+async function syncGroupIdsFromStorage() {
+  if (document.visibilityState !== "visible") return;
+
+  const { groupIds = [] } = await browser.storage.local.get<{ groupIds: string[] }>("groupIds");
+
+  const filteredGroupIds = groupIds.filter((i) => !groupNodeIds.value.includes(i));
+  // console.log("filteredGroupIds => ", filteredGroupIds);
+  if (filteredGroupIds.length === 0) return;
+
+  setGroupNodeIds([...groupNodeIds.value, ...filteredGroupIds]);
+
+  browser.storage.local.set({
+    groupIds: [],
+  });
+
+  if (queryId.value === "group") {
+    fetchGroupNodes();
+  }
+}
+
+onMounted(() => {
+  document.addEventListener("visibilitychange", syncGroupIdsFromStorage);
+
+  setTimeout(syncGroupIdsFromStorage, 1000);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("visibilitychange", syncGroupIdsFromStorage);
+  stop();
+});
 </script>
 
 <style scoped lang="less">

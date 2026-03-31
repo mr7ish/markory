@@ -7,6 +7,9 @@ export function useLocale() {
   function changeLocale(lang: string) {
     locale.value = lang;
     setLocale(lang);
+    browser.storage.local.set({
+      locale: lang,
+    });
   }
 
   return {

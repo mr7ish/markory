@@ -115,7 +115,7 @@ export async function searchNode(query: string) {
   return nodes;
 }
 
-export async function initGroupName() {
+export async function initGroupNameBrowser() {
   const res = await browser.bookmarks.search({
     query: t("groupName"),
   });
@@ -142,11 +142,9 @@ export async function groupTabs(groupId?: string) {
     let parentId = groupId;
 
     if (!groupId) {
-      const title = await initGroupName();
-
       const node = await createNode({
         parentId: "1",
-        title,
+        title: await initGroupNameBrowser(),
       });
 
       if (!node) return null;
