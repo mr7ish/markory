@@ -55,6 +55,7 @@
           :key="node.id"
           class="result-item"
           @click="selectNode(node)"
+          :title="`${node.title} —— ${parentNodeTitleMapping[node.id]}`"
         >
           <IconTag
             v-if="!node.url"
@@ -67,11 +68,11 @@
             width="22"
           />
           <!-- icon="ion:earth-sharp" -->
-          <span
-            class="node-title text-overflow-hidden"
-            :title="node.title"
-          >
+          <span class="node-title text-overflow-hidden">
             {{ node.title }}
+          </span>
+          <span class="node-folder-name text-overflow-hidden">
+            {{ parentNodeTitleMapping[node.id] }}
           </span>
         </div>
       </div>
@@ -93,7 +94,7 @@
 import { useMouseInElement, watchDebounced } from "@vueuse/core";
 import IconTag from "./IconTag.vue";
 import { calcMoveDistance, Vector2 } from "@/utils/element";
-import { searchNode } from "@/bookmarks/api/bookmarks";
+import { fetchSpecifiedNodes, searchNode } from "@/bookmarks/api/bookmarks";
 import { useSearchStore } from "@/bookmarks/store/search";
 import { useRoute, useRouter } from "vue-router";
 import { useRoutesStore } from "@/bookmarks/store/routes";
@@ -165,9 +166,21 @@ async function selectNode(node: Browser.bookmarks.BookmarkTreeNode) {
   }
 }
 
+const parentNodeTitleMapping = shallowRef<Record<string, string>>({});
+
 async function search(query: string) {
   const _nodes = await searchNode(query);
   nodes.value = _nodes.filter((i) => !allRecycleNodeIds.value.includes(i.id));
+
+  const specifiedNodes = await fetchSpecifiedNodes(
+    nodes.value.map((i) => i.parentId) as [string, ...string[]],
+  );
+
+  nodes.value.forEach((node, i) => {
+    parentNodeTitleMapping.value[node.id] = ["1", "2"].includes(specifiedNodes[i].id)
+      ? "全部文件夹"
+      : specifiedNodes[i].title;
+  });
 }
 
 function clear() {
@@ -270,7 +283,12 @@ function focusOut() {
         }
 
         .node-title {
-          max-width: 300px;
+          width: 300px;
+        }
+
+        .node-folder-name {
+          font-size: 0.8em;
+          color: var(--text-muted);
         }
       }
     }

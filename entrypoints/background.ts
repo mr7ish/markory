@@ -48,7 +48,7 @@ async function groupTabs(title: string) {
 
     await Promise.allSettled(
       tabs
-        .filter((tab) => !!tab.url && !!tab.title && tab.url !== "chrome://bookmarks/")
+        .filter((tab) => !!tab.url && !!tab.title && !tab.url.includes("chrome://bookmarks"))
         .map((tab) =>
           createNode({
             parentId: node.id,
