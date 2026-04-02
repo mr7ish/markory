@@ -172,6 +172,8 @@ async function search(query: string) {
   const _nodes = await searchNode(query);
   nodes.value = _nodes.filter((i) => !allRecycleNodeIds.value.includes(i.id));
 
+  if (nodes.value.length === 0) return;
+
   const specifiedNodes = await fetchSpecifiedNodes(
     nodes.value.map((i) => i.parentId) as [string, ...string[]],
   );
