@@ -55,7 +55,7 @@
           :key="node.id"
           class="result-item"
           @click="selectNode(node)"
-          :title="`${node.title} —— ${parentNodeTitleMapping[node.id]}`"
+          :title="`${node.title} —— ${parentNodeTitleMapping[node.id] || ''}`"
         >
           <IconTag
             v-if="!node.url"
