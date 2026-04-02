@@ -160,6 +160,7 @@ function selectNode(node: Browser.bookmarks.BookmarkTreeNode) {
       margin-left: 6px;
       font-size: 14px;
       color: var(--text);
+      line-height: 20px;
       max-width: 200px;
       overflow: hidden;
       text-overflow: ellipsis;
