@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" fill="none">
+  <rect width="1280" height="720" rx="28" fill="#F7EFEF"/>
+  <rect x="54" y="54" width="1172" height="612" rx="28" fill="#FFFCFC"/>
+  <rect x="116" y="116" width="1048" height="72" rx="22" fill="#FFF4F4"/>
+  <rect x="116" y="222" width="1048" height="104" rx="24" fill="#FFF8F8" stroke="#F0D6D6"/>
+  <rect x="116" y="350" width="1048" height="104" rx="24" fill="#FFF8F8" stroke="#F0D6D6"/>
+  <rect x="116" y="478" width="1048" height="104" rx="24" fill="#FFF8F8" stroke="#F0D6D6"/>
+  <rect x="928" y="248" width="92" height="32" rx="16" fill="#F3E1B9"/>
+  <rect x="1036" y="248" width="92" height="32" rx="16" fill="#E8D4D4"/>
+  <rect x="928" y="376" width="92" height="32" rx="16" fill="#F3E1B9"/>
+  <rect x="1036" y="376" width="92" height="32" rx="16" fill="#E8D4D4"/>
+  <rect x="928" y="504" width="92" height="32" rx="16" fill="#F3E1B9"/>
+  <rect x="1036" y="504" width="92" height="32" rx="16" fill="#E8D4D4"/>
+  <text x="116" y="102" fill="#8A6767" font-family="Arial, sans-serif" font-size="20">Recycle Bin Placeholder</text>
+  <text x="948" y="269" fill="#7B6630" font-family="Arial, sans-serif" font-size="16">Restore</text>
+  <text x="1058" y="269" fill="#8A5C5C" font-family="Arial, sans-serif" font-size="16">Delete</text>
+</svg>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" fill="none">
+  <rect width="1280" height="720" rx="28" fill="#F4F0E8"/>
+  <rect x="36" y="36" width="200" height="648" rx="24" fill="#1E2A24"/>
+  <rect x="272" y="36" width="972" height="72" rx="20" fill="#FFFDF8"/>
+  <rect x="308" y="58" width="320" height="28" rx="14" fill="#E8E1D2"/>
+  <rect x="272" y="140" width="972" height="544" rx="24" fill="#FFFDF8"/>
+  <rect x="320" y="188" width="180" height="160" rx="22" fill="#E9EFE8"/>
+  <rect x="540" y="188" width="180" height="160" rx="22" fill="#F5E8D8"/>
+  <rect x="760" y="188" width="180" height="160" rx="22" fill="#E3EBF7"/>
+  <rect x="980" y="188" width="180" height="160" rx="22" fill="#F4E6EA"/>
+  <rect x="320" y="390" width="180" height="160" rx="22" fill="#F1E8CF"/>
+  <rect x="540" y="390" width="180" height="160" rx="22" fill="#E7EFE1"/>
+  <rect x="760" y="390" width="180" height="160" rx="22" fill="#EEE7F6"/>
+  <rect x="980" y="390" width="180" height="160" rx="22" fill="#E5F1F0"/>
+  <rect x="515" y="614" width="486" height="42" rx="21" fill="#FFFDF8" stroke="#D9D0C0"/>
+  <text x="76" y="106" fill="#FFFDF8" font-family="Arial, sans-serif" font-size="28" font-weight="700">Markory</text>
+  <text x="318" y="100" fill="#8A8172" font-family="Arial, sans-serif" font-size="20">Home Overview Placeholder</text>
+  <text x="320" y="602" fill="#8A8172" font-family="Arial, sans-serif" font-size="20">Bottom Floating Menu</text>
+</svg>
