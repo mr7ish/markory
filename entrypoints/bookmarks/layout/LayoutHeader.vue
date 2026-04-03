@@ -1,15 +1,18 @@
 <template>
   <div class="header-wrapper">
-    <div>
+    <div v-if="activeKey === 'menuHome'">
       <SearchIsland />
     </div>
-    <ModeSwitch />
+    <ModeSwitch style="margin-left: auto" />
   </div>
 </template>
 
 <script setup lang="ts">
 import ModeSwitch from "@/components/ModeSwitch.vue";
 import SearchIsland from "@/components/SearchIsland.vue";
+import { useStorage } from "@vueuse/core";
+
+const activeKey = useStorage("active-menu-key", "menuHome");
 </script>
 
 <style scoped lang="less">
@@ -18,7 +21,6 @@ import SearchIsland from "@/components/SearchIsland.vue";
   height: 60px;
   padding: 0 16px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   background-color: var(--bg-light);
 }
