@@ -55,7 +55,7 @@
           :key="node.id"
           class="result-item"
           @click="selectNode(node)"
-          :title="`${node.title} —— ${parentNodeTitleMapping[node.id] || ''}`"
+          :title="`${node.title} —— ${node.parentNodeTitle || ''}`"
         >
           <IconTag
             v-if="!node.url"
@@ -72,7 +72,7 @@
             {{ node.title }}
           </span>
           <span class="node-folder-name text-overflow-hidden">
-            {{ parentNodeTitleMapping[node.id] }}
+            {{ node.parentNodeTitle }}
           </span>
         </div>
       </div>
@@ -115,7 +115,11 @@ const modelValue = ref("");
 const isFocus = ref(false);
 const moveDistance = ref<Vector2>([0, 0]);
 
-const nodes = shallowRef<Browser.bookmarks.BookmarkTreeNode[]>([]);
+interface Node extends Browser.bookmarks.BookmarkTreeNode {
+  parentNodeTitle: string;
+}
+
+const nodes = shallowRef<Node[]>([]);
 
 const { findPathByMap } = useSearchStore();
 const routesStore = useRoutesStore();
@@ -166,23 +170,25 @@ async function selectNode(node: Browser.bookmarks.BookmarkTreeNode) {
   }
 }
 
-const parentNodeTitleMapping = shallowRef<Record<string, string>>({});
-
 async function search(query: string) {
-  const _nodes = await searchNode(query);
-  nodes.value = _nodes.filter((i) => !allRecycleNodeIds.value.includes(i.id));
+  const searchNodes = await searchNode(query);
+  const _nodes = searchNodes.filter((i) => !allRecycleNodeIds.value.includes(i.id));
 
-  if (nodes.value.length === 0) return;
+  if (_nodes.length === 0) {
+    nodes.value = [];
+    return;
+  }
 
   const specifiedNodes = await fetchSpecifiedNodes(
-    nodes.value.map((i) => i.parentId) as [string, ...string[]],
+    _nodes.map((i) => i.parentId) as [string, ...string[]],
   );
 
-  nodes.value.forEach((node, i) => {
-    parentNodeTitleMapping.value[node.id] = ["1", "2"].includes(specifiedNodes[i].id)
+  nodes.value = _nodes.map((node, i) => ({
+    ...node,
+    parentNodeTitle: ["1", "2"].includes(specifiedNodes[i].id)
       ? "全部文件夹"
-      : specifiedNodes[i].title;
-  });
+      : specifiedNodes[i].title,
+  }));
 }
 
 function clear() {
