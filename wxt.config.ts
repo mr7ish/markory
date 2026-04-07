@@ -12,4 +12,5 @@ export default defineConfig({
   alias: {
     "@/bookmarks": "./entrypoints/bookmarks",
   },
+  outDirTemplate: "markory{{modeSuffix}}",
 });

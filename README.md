@@ -209,7 +209,7 @@ pnpm dev
 运行后可在 Chromium 系浏览器中加载开发产物目录：
 
 ```bash
-.output/chrome-mv3-dev
+.output/markory-dev
 ```
 
 ### 本地构建
@@ -221,7 +221,7 @@ pnpm build
 构建完成后可加载：
 
 ```bash
-.output/chrome-mv3
+.output/markory
 ```
 
 ### Firefox
@@ -251,7 +251,7 @@ pnpm compile
 1. 打开扩展管理页
 2. 开启“开发者模式”
 3. 选择“加载已解压的扩展程序”
-4. 指向 `.output/chrome-mv3-dev` 或 `.output/chrome-mv3`
+4. 指向 `.output/markory-dev` 或 `.output/markory`
 
 ### Firefox
 
