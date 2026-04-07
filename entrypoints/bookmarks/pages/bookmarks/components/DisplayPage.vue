@@ -26,6 +26,7 @@
         v-model:nodes-icon-mapping="nodesIconMapping"
         v-model:favicon-load-state="faviconLoadState"
         :is-focused="focusNodeIds.includes(node.id)"
+        :is-imported="importNodeIds.includes(node.id)"
         :disabled="activeMenu === 'recycle'"
         :drag-disabled="isDragDisabled"
         @contextmenu.stop.prevent="
@@ -163,6 +164,10 @@ import { useI18n } from "vue-i18n";
 import URLPreview from "@/components/URLPreview.vue";
 import { useSettingStore } from "@/bookmarks/store/setting";
 import { useGroupStore } from "@/bookmarks/store/group";
+import { useImportStore } from "@/bookmarks/store/import";
+
+const importStore = useImportStore();
+const { importNodeIds } = storeToRefs(importStore);
 
 const groupStore = useGroupStore();
 const { setGroupNodeIds } = groupStore;
@@ -251,7 +256,9 @@ async function treeModalConfirm() {
 }
 
 // 拖拽禁用判断（focus 和 recycle 模块下禁用拖拽）
-const isDragDisabled = computed(() => ["recycle", "focus", "group"].includes(activeMenu.value));
+const isDragDisabled = computed(() =>
+  ["recycle", "focus", "group", "import"].includes(activeMenu.value),
+);
 
 // 无限滚动
 const scrollContainer = useTemplateRef("scrollContainer");
@@ -332,7 +339,7 @@ const pageContextMenus = computed<ContextMenuItem[]>(() => {
 });
 
 const nodeContextMenus = computed<ContextMenuItem[]>(() => {
-  if (["folder", "focus", "group"].includes(activeMenu.value)) {
+  if (["folder", "focus", "group", "import"].includes(activeMenu.value)) {
     return [
       { label: t("openContext"), value: "open" },
       { label: t("openAllByGroupContext"), value: !contextNode.value?.url ? "openAllByGroup" : "" },

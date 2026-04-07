@@ -28,6 +28,14 @@ export const useRoutesStore = defineStore("routesStore", () => {
       activeIcon: "material-symbols:tab-group",
     },
     {
+      title: "导入",
+      id: "import",
+      // icon: "lets-icons:import",
+      // activeIcon: "lets-icons:import-fill",
+      icon: "basil:upload-outline",
+      activeIcon: "basil:upload-solid",
+    },
+    {
       title: "回收站",
       id: "recycle",
       icon: "basil:trash-outline",

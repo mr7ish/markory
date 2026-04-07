@@ -78,18 +78,40 @@
           {{ formatTimestamp(node.dateGroupModified, DateFormat.f6) }}
         </span>
 
-        <IconTag
-          v-if="heartVisible"
-          icon="solar:heart-bold"
-          width="12"
-          color="#ff4d6a"
-          class="icon-focus animate__animated"
-          :class="{
-            animate__bounceOut: isExiting,
-            animate__heartBeat: isFocused,
-          }"
-          @animationend="onHeartAnimationEnd"
-        />
+        <div class="extra-icon-wrapper">
+          <div
+            v-if="heartVisible"
+            class="icon-focus"
+            :title="t('focus')"
+          >
+            <IconTag
+              icon="solar:heart-bold"
+              width="12"
+              color="#ff4d6a"
+              class="animate__animated"
+              :class="{
+                animate__bounceOut: isExiting,
+                animate__heartBeat: isFocused,
+              }"
+              @animationend="onHeartAnimationEnd"
+            />
+          </div>
+          <div
+            v-if="importVisible"
+            class="icon-import"
+            :title="t('import')"
+          >
+            <IconTag
+              icon="basil:upload-solid"
+              width="12"
+              color="#888"
+              class="animate__animated"
+              :class="{
+                animate__heartBeat: isFocused,
+              }"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -114,6 +136,7 @@ const props = defineProps<{
   systemIcon: string;
   iconList: string[];
   isFocused?: boolean;
+  isImported?: boolean;
   disabled?: boolean; // 点击禁用（回收站）
   dragDisabled?: boolean; // 拖拽禁用（特别关注 + 回收站）
   enablePreview?: boolean;
@@ -152,6 +175,8 @@ const { routes } = storeToRefs(routesStore);
 
 const isExiting = ref(false);
 const heartVisible = computed(() => !!props.isFocused || isExiting.value);
+
+const importVisible = computed(() => !!props.isImported);
 
 watch(
   () => props.isFocused,
@@ -488,12 +513,6 @@ function onIconError(evt: Event, nodeId: string) {
     cursor: not-allowed;
   }
 
-  .icon-focus {
-    position: absolute;
-    top: 0;
-    right: -18px;
-  }
-
   .icon-wrapper {
     width: 50px;
     height: 50px;
@@ -529,6 +548,16 @@ function onIconError(evt: Event, nodeId: string) {
       align-items: center;
       gap: 6px;
       position: relative;
+
+      .extra-icon-wrapper {
+        position: absolute;
+        top: 0;
+        right: -42px;
+        width: 36px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
     }
   }
 

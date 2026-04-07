@@ -28,6 +28,7 @@ import { useRoutesStore } from "@/bookmarks/store/routes";
 import { storeToRefs } from "pinia";
 import { useRecycleStore } from "@/bookmarks/store/recycle";
 import { useGroupStore } from "@/bookmarks/store/group";
+import { useImportStore } from "@/bookmarks/store/import";
 
 const routesStore = useRoutesStore();
 const { activeMenu, routes, queryId } = storeToRefs(routesStore);
@@ -35,6 +36,10 @@ const { activeMenu, routes, queryId } = storeToRefs(routesStore);
 const groupStore = useGroupStore();
 const { setGroupNodeIds } = groupStore;
 const { groupNodeIds } = storeToRefs(groupStore);
+
+const importStore = useImportStore();
+const { setImportNodeIds } = importStore;
+const { importNodeIds } = storeToRefs(importStore);
 
 const recycleStore = useRecycleStore();
 const { setRecycleNodes, setRemoveNodeIds } = recycleStore;
@@ -49,7 +54,8 @@ const {
 const searchStore = useSearchStore();
 const { setTree } = searchStore;
 
-const { nodes, fetchTopNodes, fetchChildrenNodes, fetchGroupNodes } = useBookmarkNodesQuery();
+const { nodes, fetchTopNodes, fetchChildrenNodes, fetchGroupNodes, fetchImportNodes } =
+  useBookmarkNodesQuery();
 
 const { data: focusNodes, set: setFocusNodes } = useIDBKeyval<Browser.bookmarks.BookmarkTreeNode[]>(
   "focus-nodes",
@@ -88,6 +94,10 @@ const showNodes = computed(() => {
 
   if (activeMenu.value === "focus") {
     return focusNodes.value.filter((i) => !allRecycleNodeIds.value.includes(i.id));
+  }
+
+  if (activeMenu.value === "import") {
+    return nodes.value.filter((i) => !allRecycleNodeIds.value.includes(i.id));
   }
 
   if (activeMenu.value === "recycle") {
@@ -130,6 +140,7 @@ async function flushPendingDeletes() {
     setRecycleNodes(recycleNodes.value.filter((i) => !allRecycleNodeIds.value.includes(i.node.id)));
     setFocusNodes(focusNodes.value.filter((i) => !allRemoveNodeIds.value.includes(i.id)));
     setGroupNodeIds(groupNodeIds.value.filter((i) => !pendingDeleteIds.value.includes(i)));
+    setImportNodeIds(importNodeIds.value.filter((i) => !allRemoveNodeIds.value.includes(i)));
     pendingDeleteIds.value = [];
     setRemoveNodeIds([]);
   }
@@ -147,6 +158,11 @@ function otherProcess() {
 
   if (queryId.value === "group") {
     fetchGroupNodes();
+    return;
+  }
+
+  if (queryId.value === "import") {
+    fetchImportNodes();
     return;
   }
 

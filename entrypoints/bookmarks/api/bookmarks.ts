@@ -29,6 +29,19 @@ export async function fetchSpecifiedNodes(ids: [string, ...string[]]) {
   return await browser.bookmarks.get(ids);
 }
 
+export async function fetchSpecifiedNodesSafely(ids: string[]) {
+  const results = await Promise.allSettled(ids.map((id) => browser.bookmarks.get(id)));
+
+  return results
+    .filter(
+      (
+        item,
+      ): item is PromiseFulfilledResult<Browser.bookmarks.BookmarkTreeNode[]> =>
+        item.status === "fulfilled",
+    )
+    .flatMap((item) => item.value);
+}
+
 function processUrl(url?: string) {
   if (!url) {
     return "";

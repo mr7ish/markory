@@ -67,4 +67,17 @@ export default {
   langEn: "English",
   preview: "Preview",
   settingPreview: "Enable floating preview bookmark",
+  importExport: "Import Export",
+  import: "Import",
+  export: "Export",
+  importConfirmTitle: "Import Data",
+  importConfirmContent:
+    "Importing will append the file's bookmarks and related states to your current data. Existing bookmarks will be kept, and imported items will always be created as new nodes.",
+  importConfirmText: "Import Now",
+  importExportLoadingTips: "Transfer data is still loading, please try again later.",
+  importFileInvalidTips: "Invalid import file",
+  importSuccessTips: "Import success",
+  importFailedTips: "Import failed",
+  exportSuccessTips: "Export success",
+  exportFailedTips: "Export failed",
 };

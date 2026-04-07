@@ -1,5 +1,6 @@
 :root {
   --primary: oklch(65% 0.15 264);
+  --primary-hover: oklch(75% 0.1 264);
 
   --bg-dark: oklch(92% 0 264);
   --bg: oklch(96% 0 264);
@@ -41,6 +42,7 @@
 :root.dark {
   /* --primary: oklch(90% 0.17 100); */
   --primary: oklch(65% 0.15 264);
+  --primary-hover: oklch(75% 0.1 264);
 
   --bg-dark: oklch(10% 0 264);
   --bg: oklch(20% 0 264);

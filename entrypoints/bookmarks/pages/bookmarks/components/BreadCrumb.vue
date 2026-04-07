@@ -47,7 +47,7 @@ const dragDisabledFolderId = ref<string | null>(null);
 // 检查是否启用拖拽（focus 和 recycle 模块下禁用）
 const isDragEnabled = computed(() => {
   const currentId = queryId.value;
-  return !["focus", "recycle"].includes(currentId);
+  return !["focus", "import", "recycle"].includes(currentId);
 });
 
 // 拖拽状态（模块级别，用于跨组件共享）
@@ -88,11 +88,12 @@ function isDropDisabled(folderId: string, dragNodeId: string | null) {
   if (folderId === currentFolderId) return true;
 
   // 根文件夹的特殊处理
-  const isRootFolder = ["folder", "focus", "recycle"].includes(folderId);
+  const isRootFolder = ["folder", "focus", "import", "recycle"].includes(folderId);
   if (isRootFolder) {
     // 如果当前在根文件夹路径下，则禁止拖拽回根文件夹
     const isInRootPath =
-      routes.value.length === 1 && ["folder", "focus", "recycle"].includes(routes.value[0]?.id);
+      routes.value.length === 1 &&
+      ["folder", "focus", "import", "recycle"].includes(routes.value[0]?.id);
     if (isInRootPath) return true;
   }
 
@@ -104,7 +105,7 @@ function isDropDisabled(folderId: string, dragNodeId: string | null) {
  */
 function getTargetFolderId(folderId: string): string {
   // 如果是根文件夹，统一移动到书签栏（id="1"）
-  if (["folder", "focus", "recycle"].includes(folderId)) {
+  if (["folder", "focus", "import", "recycle"].includes(folderId)) {
     return "1";
   }
   return folderId;

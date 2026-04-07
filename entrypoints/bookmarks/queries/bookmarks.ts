@@ -2,10 +2,12 @@ import {
   fetchAllNodes,
   fetchNodeChildrenById,
   fetchSpecifiedNodes,
+  fetchSpecifiedNodesSafely,
 } from "@/entrypoints/bookmarks/api/bookmarks";
 import { useRoutesStore } from "../store/routes";
 import { storeToRefs } from "pinia";
 import { useGroupStore } from "../store/group";
+import { useImportStore } from "../store/import";
 
 export function useBookmarkNodesQuery() {
   const nodes = shallowRef<Browser.bookmarks.BookmarkTreeNode[]>([]);
@@ -16,9 +18,12 @@ export function useBookmarkNodesQuery() {
   const groupStore = useGroupStore();
   const { groupNodeIds, isGroupNodesFinished } = storeToRefs(groupStore);
 
+  const importStore = useImportStore();
+  const { importNodeIds, isImportNodesFinished } = storeToRefs(importStore);
+
   watch(
-    [routes, isGroupNodesFinished],
-    ([_routes, _isGroupNodesFinished]) => {
+    [routes, isGroupNodesFinished, isImportNodesFinished, importNodeIds],
+    ([_routes, _isGroupNodesFinished, _isImportNodesFinished]) => {
       console.log("useBookmarkNodesQuery => ", _routes);
       if (_routes.length === 0) return;
 
@@ -31,6 +36,11 @@ export function useBookmarkNodesQuery() {
 
       if (id === "group" && _isGroupNodesFinished) {
         fetchGroupNodes();
+        return;
+      }
+
+      if (id === "import" && _isImportNodesFinished) {
+        fetchImportNodes();
         return;
       }
 
@@ -75,10 +85,29 @@ export function useBookmarkNodesQuery() {
     nodes.value = _nodes;
   }
 
+  async function fetchImportNodes() {
+    if (!importNodeIds.value.length) {
+      nodes.value = [];
+      return;
+    }
+
+    const params: string[] = [];
+
+    for (const id of importNodeIds.value) {
+      params.push(id);
+    }
+
+    const importedNodes = await fetchSpecifiedNodesSafely(params);
+    const importNodeIdSet = new Set(importNodeIds.value);
+
+    nodes.value = importedNodes.filter((node) => !node.parentId || !importNodeIdSet.has(node.parentId));
+  }
+
   return {
     nodes,
     fetchTopNodes,
     fetchChildrenNodes,
     fetchGroupNodes,
+    fetchImportNodes,
   };
 }
