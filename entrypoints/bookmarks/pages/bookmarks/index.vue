@@ -137,7 +137,8 @@ let processTimer: ReturnType<typeof setTimeout> | null = null;
 
 async function flushPendingDeletes() {
   if (pendingDeleteIds.value.length > 0) {
-    setRecycleNodes(recycleNodes.value.filter((i) => !allRecycleNodeIds.value.includes(i.node.id)));
+    // Only remove recycle-bin roots that were actually deleted in this batch.
+    setRecycleNodes(recycleNodes.value.filter((i) => !pendingDeleteIds.value.includes(i.node.id)));
     setFocusNodes(focusNodes.value.filter((i) => !allRemoveNodeIds.value.includes(i.id)));
     setGroupNodeIds(groupNodeIds.value.filter((i) => !pendingDeleteIds.value.includes(i)));
     setImportNodeIds(importNodeIds.value.filter((i) => !allRemoveNodeIds.value.includes(i)));

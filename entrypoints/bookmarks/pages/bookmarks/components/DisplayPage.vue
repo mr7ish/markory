@@ -270,24 +270,72 @@ const { displayedItems: displayedNodes, hasMore } = useInfiniteScrollNodes(
 async function clearConfirm() {
   if (recycleNodeIds.length === 0) return;
 
-  const removeIds = await getSubIds(recycleNodeIds);
-  setRemoveNodeIds(removeIds);
+  try {
+    const deleteTargetResults = await Promise.allSettled(
+      recycleNodeIds.map(async (id) => ({
+        id,
+        removeIds: await getSubIds([id]),
+      })),
+    );
 
-  await Promise.all(recycleNodeIds.map((i) => removeNode(i)));
-  message.success(t("clearSuccessTips"));
-  clearConfirmVisible.value = false;
+    const deleteTargets = deleteTargetResults
+      .filter(
+        (
+          item,
+        ): item is PromiseFulfilledResult<{
+          id: string;
+          removeIds: string[];
+        }> => item.status === "fulfilled",
+      )
+      .map((item) => item.value);
+
+    const results = await Promise.all(
+      deleteTargets.map(async ({ id, removeIds }) => ({
+        id,
+        removeIds,
+        success: await removeNode(id),
+      })),
+    );
+
+    const successfulRemoveIds = [...new Set(
+      results.filter((item) => item.success).flatMap((item) => item.removeIds),
+    )];
+
+    if (successfulRemoveIds.length > 0) {
+      setRemoveNodeIds(successfulRemoveIds);
+    }
+
+    const hasTargetLookupFailure = deleteTargetResults.some((item) => item.status === "rejected");
+    const hasDeleteFailure = results.some((item) => !item.success);
+
+    if (!hasTargetLookupFailure && !hasDeleteFailure) {
+      message.success(t("clearSuccessTips"));
+    } else if (successfulRemoveIds.length > 0) {
+      message.warning(t("deleteFailedTips"));
+    } else {
+      message.error(t("deleteFailedTips"));
+    }
+  } catch (error) {
+    message.error(t("deleteFailedTips"));
+  } finally {
+    clearConfirmVisible.value = false;
+  }
 }
 
 async function deleteConfirm() {
   if (!contextNode.value) return;
 
-  const removeIds = await getSubIds([contextNode.value.id]);
-  setRemoveNodeIds(removeIds);
+  try {
+    const removeIds = await getSubIds([contextNode.value.id]);
+    const success = await removeNode(contextNode.value.id);
 
-  const success = await removeNode(contextNode.value.id);
-  if (success) {
-    message.success(t("deleteSuccessTips"));
-    contextNode.value = undefined;
+    if (success) {
+      setRemoveNodeIds(removeIds);
+      message.success(t("deleteSuccessTips"));
+      contextNode.value = undefined;
+    }
+  } catch (error) {
+    message.error(t("deleteFailedTips"));
   }
 }
 
