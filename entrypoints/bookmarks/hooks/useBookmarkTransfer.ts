@@ -1,4 +1,3 @@
-import { useIDBKeyval } from "@vueuse/integrations/useIDBKeyval";
 import { storeToRefs } from "pinia";
 import { useI18n } from "vue-i18n";
 import { message } from "@/components/tiny-message";
@@ -8,12 +7,17 @@ import {
   parseBookmarkTransferData,
   type BookmarkTransferData,
 } from "@/bookmarks/api/import-export";
+import { useFocusStore } from "@/bookmarks/store/focus";
 import { useGroupStore } from "@/bookmarks/store/group";
 import { useImportStore } from "@/bookmarks/store/import";
 import { useRecycleStore } from "@/bookmarks/store/recycle";
 
 export function useBookmarkTransfer() {
   const { t } = useI18n();
+
+  const focusStore = useFocusStore();
+  const { setFocusNodes } = focusStore;
+  const { focusNodes, isFocusNodesFinished } = storeToRefs(focusStore);
 
   const groupStore = useGroupStore();
   const { setGroupNodeIds } = groupStore;
@@ -26,14 +30,6 @@ export function useBookmarkTransfer() {
   const recycleStore = useRecycleStore();
   const { setRecycleNodes } = recycleStore;
   const { recycleNodes, isRecycleNodesFinished } = storeToRefs(recycleStore);
-
-  const {
-    data: focusNodes,
-    set: setFocusNodes,
-    isFinished: isFocusNodesFinished,
-  } = useIDBKeyval<Browser.bookmarks.BookmarkTreeNode[]>("focus-nodes", [], {
-    shallow: true,
-  });
 
   const importInputRef = useTemplateRef<HTMLInputElement>("importInputRef");
   const importConfirmVisible = ref(false);

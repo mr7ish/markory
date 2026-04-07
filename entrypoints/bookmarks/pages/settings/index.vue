@@ -58,6 +58,16 @@
           </div>
         </div>
       </div>
+      <div class="setting-item">
+        <div class="label">{{ t("cache") }}</div>
+        <button
+          class="link-btn"
+          type="button"
+          @click="openClearCacheConfirm"
+        >
+          {{ t("clearCache") }}
+        </button>
+      </div>
     </div>
 
     <input
@@ -79,24 +89,54 @@
       @confirm="confirmImport"
       @cancel="clearPendingImport"
     />
+
+    <TinyConfirm
+      v-model="clearCacheConfirmVisible"
+      :title="t('clearCache')"
+      :content="t('clearCacheConfirmContent')"
+      :maskClosable="false"
+      :confirm-text="t('defaultConfirmText')"
+      :cancel-text="t('defaultCancelText')"
+      type="danger"
+      @confirm="clearCache"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
+import { delMany, keys as getIDBKeys } from "idb-keyval";
 import { useLocale } from "@/bookmarks/hooks/useLocale";
 import { useBookmarkTransfer } from "@/bookmarks/hooks/useBookmarkTransfer";
 import TinyRadio from "@/components/tiny-raido";
 import TinyConfirm from "@/components/TinyConfirm.vue";
+import { useFocusStore } from "@/bookmarks/store/focus";
+import { useGroupStore } from "@/bookmarks/store/group";
+import { useImportStore } from "@/bookmarks/store/import";
+import { useRecycleStore } from "@/bookmarks/store/recycle";
 import { useSettingStore } from "@/bookmarks/store/setting";
 import { storeToRefs } from "pinia";
+import { message } from "@/components/tiny-message";
 
 const { t } = useI18n();
 const { changeLocale, locale } = useLocale();
 
+const focusStore = useFocusStore();
+const { setFocusNodes } = focusStore;
+
+const groupStore = useGroupStore();
+const { setGroupNodeIds } = groupStore;
+
+const importStore = useImportStore();
+const { setImportNodeIds } = importStore;
+
+const recycleStore = useRecycleStore();
+const { setRecycleNodes, setRemoveNodeIds } = recycleStore;
+
 const settingStore = useSettingStore();
 const { setEnablePreview } = settingStore;
 const { enablePreview } = storeToRefs(settingStore);
+const clearCacheConfirmVisible = ref(false);
 const {
   importConfirmVisible,
   isTransferReady,
@@ -107,6 +147,34 @@ const {
   confirmImport,
   clearPendingImport,
 } = useBookmarkTransfer();
+
+async function clearCache() {
+  const preservedKeys = new Set<IDBValidKey>(["bread-crumb-routes"]);
+
+  try {
+    await Promise.all([
+      setFocusNodes([]),
+      setGroupNodeIds([]),
+      setImportNodeIds([]),
+      setRecycleNodes([]),
+    ]);
+    setRemoveNodeIds([]);
+
+    const cacheKeys = await getIDBKeys<IDBValidKey>();
+    const removableKeys = cacheKeys.filter((key) => !preservedKeys.has(key));
+
+    if (removableKeys.length > 0) {
+      await delMany(removableKeys);
+      message.success(t("clearCacheSuccessTips"));
+    }
+  } catch (error) {
+    console.error("clear cache failed", error);
+  }
+}
+
+function openClearCacheConfirm() {
+  clearCacheConfirmVisible.value = true;
+}
 </script>
 
 <style scoped lang="less">
@@ -124,7 +192,7 @@ const {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
 
     .setting-item {
       display: flex;

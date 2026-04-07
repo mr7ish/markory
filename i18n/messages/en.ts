@@ -80,4 +80,9 @@ export default {
   importFailedTips: "Import failed",
   exportSuccessTips: "Export success",
   exportFailedTips: "Export failed",
+  cache: "Cache",
+  clearCache: "Clear Cache",
+  clearCacheConfirmContent:
+    "This will clear the cached Focus, Group, Import, and Recycle states. Continue?",
+  clearCacheSuccessTips: "Cache clear success",
 };

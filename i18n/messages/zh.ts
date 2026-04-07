@@ -78,4 +78,8 @@ export default {
   importFailedTips: "导入失败",
   exportSuccessTips: "导出成功",
   exportFailedTips: "导出失败",
+  cache: "缓存",
+  clearCache: "清理缓存",
+  clearCacheConfirmContent: "这会清除特别关注、分组、导入、回收站的缓存状态！确认继续吗？",
+  clearCacheSuccessTips: "缓存清理成功",
 };

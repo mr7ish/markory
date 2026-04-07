@@ -20,15 +20,19 @@ import { useBookmarkNodesQuery } from "@/bookmarks/queries/bookmarks";
 import BreadCrumb from "./components/BreadCrumb.vue";
 import DisplayPage from "./components/DisplayPage.vue";
 import { removeNode, startWatchNode } from "@/bookmarks/api/bookmarks";
-import { useIDBKeyval } from "@vueuse/integrations/useIDBKeyval";
 import MenuIsland from "./components/MenuIsland.vue";
 import { watchOnce } from "@vueuse/core";
 import { useSearchStore } from "@/bookmarks/store/search";
 import { useRoutesStore } from "@/bookmarks/store/routes";
 import { storeToRefs } from "pinia";
+import { useFocusStore } from "@/bookmarks/store/focus";
 import { useRecycleStore } from "@/bookmarks/store/recycle";
 import { useGroupStore } from "@/bookmarks/store/group";
 import { useImportStore } from "@/bookmarks/store/import";
+
+const focusStore = useFocusStore();
+const { setFocusNodes } = focusStore;
+const { focusNodes } = storeToRefs(focusStore);
 
 const routesStore = useRoutesStore();
 const { activeMenu, routes, queryId } = storeToRefs(routesStore);
@@ -56,14 +60,6 @@ const { setTree } = searchStore;
 
 const { nodes, fetchTopNodes, fetchChildrenNodes, fetchGroupNodes, fetchImportNodes } =
   useBookmarkNodesQuery();
-
-const { data: focusNodes, set: setFocusNodes } = useIDBKeyval<Browser.bookmarks.BookmarkTreeNode[]>(
-  "focus-nodes",
-  [],
-  {
-    shallow: true,
-  },
-);
 
 const focusNodeIds = computed(() => focusNodes.value.map((i) => i.id));
 
